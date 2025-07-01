@@ -1,22 +1,44 @@
 package com.gumeinteligencia.api_intermidiaria.infrastructure.repository.entity;
 
 import com.gumeinteligencia.api_intermidiaria.domain.outroContato.Setor;
-import lombok.*;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.MongoId;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
-@Document(collection = "outros_contatos")
+@DynamoDbBean
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
 @Setter
 @Builder
 public class OutroContatoEntity {
 
-    @MongoId
     private String id;
     private String nome;
     private String telefone;
     private String descricao;
     private Setor setor;
+
+    @DynamoDbPartitionKey
+    public String getId() {
+        return id;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public String getTelefone() {
+        return telefone;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public Setor getSetor() {
+        return setor;
+    }
 }

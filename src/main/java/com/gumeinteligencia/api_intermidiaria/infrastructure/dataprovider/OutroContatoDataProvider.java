@@ -25,7 +25,7 @@ public class OutroContatoDataProvider implements OutroContatoGateway {
         List<OutroContatoEntity> outroContatoEntities;
 
         try {
-            outroContatoEntities = repository.findAll();
+            outroContatoEntities = repository.listar();
         } catch (Exception ex) {
             log.error(MENSAGEM_ERRO_LISTAR_OUTROS_CONTATOS, ex);
             throw new DataProviderException(MENSAGEM_ERRO_LISTAR_OUTROS_CONTATOS, ex.getCause());

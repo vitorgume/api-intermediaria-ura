@@ -26,7 +26,7 @@ public class ContextoDataProvider implements ContextoGateway {
         Optional<ContextoEntity> contextoEntity;
 
         try {
-            contextoEntity = repository.findByTelefone(telefone);
+            contextoEntity = repository.buscarPorTelefone(telefone);
         } catch (Exception ex) {
             log.error(MENSAGEM_ERRO_CONSULTAR_CONTEXTO_PELO_TELEFONE, ex);
             throw new DataProviderException(MENSAGEM_ERRO_CONSULTAR_CONTEXTO_PELO_TELEFONE, ex.getCause());
@@ -40,7 +40,7 @@ public class ContextoDataProvider implements ContextoGateway {
         ContextoEntity contextoEntity = ContextoMapper.paraEntity(contexto);
 
         try {
-            contextoEntity = repository.save(contextoEntity);
+            contextoEntity = repository.salvar(contextoEntity);
         } catch (Exception ex) {
             log.error(MENSAGEM_ERRO_SALVAR_CONTEXTO, ex);
             throw new DataProviderException(MENSAGEM_ERRO_SALVAR_CONTEXTO, ex.getCause());

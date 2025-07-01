@@ -34,11 +34,18 @@ public class ContextoUseCase {
 
         novoContexto.getMensagens().add(mensagem.getMensagem());
 
-        gateway.salvar(novoContexto);
+        novoContexto = gateway.salvar(novoContexto);
 
         sqsUseCase.enviarParaFila(novoContexto);
     }
 
     public void iniciarNovoContexto(Mensagem mensagem) {
+        Contexto novoContexto = Contexto.builder()
+                .mensagens(new ArrayList<>(List.of(mensagem.getMensagem())))
+                .status(StatusContexto.ATIVO)
+                .telefone(mensagem.getTelefone())
+                .build();
+
+        gateway.salvar(novoContexto);
     }
 }
