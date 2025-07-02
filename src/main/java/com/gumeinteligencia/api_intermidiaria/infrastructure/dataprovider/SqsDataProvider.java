@@ -1,18 +1,21 @@
-package com.gumeinteligencia.api_intermidiaria.application.usecase;
+package com.gumeinteligencia.api_intermidiaria.infrastructure.dataprovider;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gumeinteligencia.api_intermidiaria.application.gateways.SqsGateway;
 import com.gumeinteligencia.api_intermidiaria.domain.Contexto;
-import lombok.RequiredArgsConstructor;
+import com.gumeinteligencia.api_intermidiaria.infrastructure.exceptions.DataProviderException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
+import software.amazon.awssdk.services.sqs.model.SendMessageResponse;
 
-@Service
+@Component
 @Slf4j
-public class SqsUseCase {
+public class SqsDataProvider implements SqsGateway {
 
+    private final String MENSAGEM_ERRO_ENVIAR_PARA_FILA = "Erro ao enviar contexto para a fila SQS";
     private final SqsClient sqsClient;
     private final ObjectMapper objectMapper;
 
@@ -22,7 +25,7 @@ public class SqsUseCase {
     @Value("${aws.sqs.delay}")
     private final Integer delay;
 
-    public SqsUseCase(
+    public SqsDataProvider(
             SqsClient sqsClient,
             ObjectMapper objectMapper,
             @Value("${aws.sqs.url}") String queueUrl,
@@ -34,9 +37,8 @@ public class SqsUseCase {
         this.delay = delay;
     }
 
-    public void enviarParaFila(Contexto contexto) {
-        log.info("Enviando contexto para a fila. Contexto: {}", contexto);
-
+    @Override
+    public SendMessageResponse enviarParaFila(Contexto contexto) {
         try {
             String json = objectMapper.writeValueAsString(contexto);
 
@@ -46,13 +48,11 @@ public class SqsUseCase {
                     .delaySeconds(delay)
                     .build();
 
-            var response = sqsClient.sendMessage(request);
+            return sqsClient.sendMessage(request);
 
-            log.info("Contexto enviado com delay de {}s: {}, response: {}", delay, contexto.getTelefone(), response);
-
-        } catch (Exception e) {
-            log.error("Erro ao enviar contexto para a fila SQS", e);
-            throw new RuntimeException(e);
+        } catch (Exception ex) {
+            log.error(MENSAGEM_ERRO_ENVIAR_PARA_FILA, ex);
+            throw new DataProviderException(MENSAGEM_ERRO_ENVIAR_PARA_FILA, ex.getCause());
         }
     }
 }
