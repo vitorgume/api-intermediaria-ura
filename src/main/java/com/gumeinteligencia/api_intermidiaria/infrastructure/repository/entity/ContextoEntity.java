@@ -9,6 +9,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
 import java.util.List;
+import java.util.UUID;
 
 @DynamoDbBean
 @AllArgsConstructor
@@ -17,13 +18,13 @@ import java.util.List;
 @Builder
 public class ContextoEntity {
 
-    private String id;
+    private UUID id;
     private String telefone;
     private List<String> mensagens;
     private StatusContexto status;
 
     @DynamoDbPartitionKey
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 

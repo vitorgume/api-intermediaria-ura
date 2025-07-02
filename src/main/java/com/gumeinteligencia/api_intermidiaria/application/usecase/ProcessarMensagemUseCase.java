@@ -15,6 +15,7 @@ public class ProcessarMensagemUseCase {
     private final ContextoUseCase contextoUseCase;
 
     public void processarNovaMensagem(Mensagem mensagem) {
+        log.info("Processando nova mensagem. Mensagem: {}", mensagem);
 
         if(validadorMensagem.deveIngorar(mensagem)) {
             log.info("Mensagem ignorada. Motivo: Validação");
@@ -27,5 +28,7 @@ public class ProcessarMensagemUseCase {
                         contexto -> contextoUseCase.processarContextoExistente(contexto, mensagem),
                         () -> contextoUseCase.iniciarNovoContexto(mensagem)
                 );
+
+        log.info("Mensagem processada com sucesso.");
     }
 }

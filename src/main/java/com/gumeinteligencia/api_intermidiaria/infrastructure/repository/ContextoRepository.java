@@ -22,7 +22,7 @@ public class ContextoRepository {
 
     public ContextoEntity salvar(ContextoEntity contexto) {
         getTable().putItem(contexto);
-        return getTable().getItem(Key.builder().partitionValue(contexto.getId()).build());
+        return getTable().getItem(Key.builder().partitionValue(contexto.getId().toString()).build());
     }
 
     public Optional<ContextoEntity> buscarPorId(String id) {

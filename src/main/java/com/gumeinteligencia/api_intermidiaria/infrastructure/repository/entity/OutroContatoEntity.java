@@ -8,6 +8,8 @@ import lombok.Setter;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
+import java.util.UUID;
+
 @DynamoDbBean
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,14 +17,14 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbParti
 @Builder
 public class OutroContatoEntity {
 
-    private String id;
+    private Long id;
     private String nome;
     private String telefone;
     private String descricao;
     private Setor setor;
 
     @DynamoDbPartitionKey
-    public String getId() {
+    public Long getId() {
         return id;
     }
 

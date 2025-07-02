@@ -15,7 +15,7 @@ public class SqsUseCase {
 
     private final SqsClient sqsClient;
     private final ObjectMapper objectMapper;
-    private String queueUrl = "http://localhost:4566/000000000000/minha-fila-teste";
+    private String queueUrl = "http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/fila-contexto";
     private Integer delay = 25;
 
     public void enviarParaFila(Contexto contexto) {
@@ -28,9 +28,9 @@ public class SqsUseCase {
                     .delaySeconds(delay)
                     .build();
 
-            sqsClient.sendMessage(request);
+            var response = sqsClient.sendMessage(request);
 
-            log.info("Contexto enviado com delay de {}s: {}", delay, contexto.getTelefone());
+            log.info("Contexto enviado com delay de {}s: {}, response: {}", delay, contexto.getTelefone(), response);
 
         } catch (Exception e) {
             log.error("Erro ao enviar contexto para a fila SQS", e);
