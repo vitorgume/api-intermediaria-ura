@@ -1,16 +1,13 @@
 package com.gumeinteligencia.api_intermidiaria.infrastructure.repository;
 
-import com.gumeinteligencia.api_intermidiaria.infrastructure.repository.entity.ContextoEntity;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.repository.entity.OutroContatoEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
-import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
