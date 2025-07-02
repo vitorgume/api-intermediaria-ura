@@ -13,8 +13,15 @@ import java.net.URI;
 
 @Configuration
 public class DynamoDbConfig {
-    //@Value("${aws.dynamodb.endpoint}")
-    private String dynamoEndpoint = "http://localhost:4566";
+
+    @Value("${aws.dynamodb.url}")
+    private final String dynamoEndpoint;
+
+    public DynamoDbConfig(
+            @Value("${aws.dynamodb.url}") String dynamoEndpoint
+    ) {
+        this.dynamoEndpoint = dynamoEndpoint;
+    }
 
     @Bean
     public DynamoDbClient dynamoDbClient() {

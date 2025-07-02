@@ -4,21 +4,39 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gumeinteligencia.api_intermidiaria.domain.Contexto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class SqsUseCase {
 
     private final SqsClient sqsClient;
     private final ObjectMapper objectMapper;
-    private String queueUrl = "http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/fila-contexto";
-    private Integer delay = 25;
+
+    @Value("${aws.sqs.url}")
+    private final String queueUrl;
+
+    @Value("${aws.sqs.delay}")
+    private final Integer delay;
+
+    public SqsUseCase(
+            SqsClient sqsClient,
+            ObjectMapper objectMapper,
+            @Value("${aws.sqs.url}") String queueUrl,
+            @Value("${aws.sqs.delay}") Integer delay
+    ) {
+        this.sqsClient = sqsClient;
+        this.objectMapper = objectMapper;
+        this.queueUrl = queueUrl;
+        this.delay = delay;
+    }
 
     public void enviarParaFila(Contexto contexto) {
+        log.info("Enviando contexto para a fila. Contexto: {}", contexto);
+
         try {
             String json = objectMapper.writeValueAsString(contexto);
 
