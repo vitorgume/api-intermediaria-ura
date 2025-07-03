@@ -3,6 +3,7 @@ package com.gumeinteligencia.api_intermidiaria.infrastructure.dataprovider;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gumeinteligencia.api_intermidiaria.domain.Contexto;
+import com.gumeinteligencia.api_intermidiaria.infrastructure.exceptions.DataProviderException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -71,10 +72,11 @@ class SqsDataProviderTest {
     }
 
     @Test
-    void deveLancarExcecaoAoFalharNaConversaoJson() throws Exception {
-        when(objectMapper.writeValueAsString(contexto)).thenThrow(new JsonProcessingException("Erro") {});
+    void deveLancarDataProviderExceptionAoFalharNaConversaoJson() throws Exception {
+        when(objectMapper.writeValueAsString(contexto))
+                .thenThrow(new JsonProcessingException("Erro") {});
 
-        RuntimeException ex = assertThrows(RuntimeException.class, () -> {
+        DataProviderException ex = assertThrows(DataProviderException.class, () -> {
             sqsDataProvider.enviarParaFila(contexto);
         });
 

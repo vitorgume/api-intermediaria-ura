@@ -13,8 +13,14 @@ import java.net.URI;
 @Configuration
 public class SqsConfig {
 
-    // @Value("${aws.sqs.endpoint}")
-    private String sqsEndpoint = "http://localhost:4566";
+    @Value("${aws.sqs.endpoint}")
+    private final String sqsEndpoint;
+
+    public SqsConfig (
+            @Value("${aws.sqs.endpoint}") String sqsEndpoint
+    ) {
+        this.sqsEndpoint = sqsEndpoint;
+    }
 
     @Bean
     public SqsClient sqsClient() {

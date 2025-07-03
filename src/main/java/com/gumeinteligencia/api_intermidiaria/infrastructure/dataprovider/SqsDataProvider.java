@@ -52,7 +52,7 @@ public class SqsDataProvider implements SqsGateway {
 
         } catch (Exception ex) {
             log.error(MENSAGEM_ERRO_ENVIAR_PARA_FILA, ex);
-            throw new DataProviderException(MENSAGEM_ERRO_ENVIAR_PARA_FILA, ex.getCause());
+            throw new DataProviderException(MENSAGEM_ERRO_ENVIAR_PARA_FILA, ex);
         }
     }
 }
