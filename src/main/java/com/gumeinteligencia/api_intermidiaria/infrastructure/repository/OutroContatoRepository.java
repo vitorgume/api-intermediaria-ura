@@ -1,11 +1,10 @@
 package com.gumeinteligencia.api_intermidiaria.infrastructure.repository;
 
 import com.gumeinteligencia.api_intermidiaria.infrastructure.repository.entity.OutroContatoEntity;
+import io.awspring.cloud.dynamodb.DynamoDbTemplate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
-import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,18 +13,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OutroContatoRepository {
 
-    private final DynamoDbEnhancedClient enhancedClient;
+    private final DynamoDbTemplate dynamoDbTemplate;
 
-    private DynamoDbTable<OutroContatoEntity> getTable() {
-        return enhancedClient.table("outros_contatos", TableSchema.fromBean(OutroContatoEntity.class));
-    }
 
-    public void salvar(OutroContatoEntity outroContato) {
-        getTable().putItem(outroContato);
+    public OutroContatoEntity salvar(OutroContatoEntity outroContato) {
+        return dynamoDbTemplate.save(outroContato);
     }
 
     public List<OutroContatoEntity> listar() {
-        DynamoDbTable<OutroContatoEntity> table = getTable();
-        return table.scan().items().stream().collect(Collectors.toList());
+        dynamoDbTemplate.scanAll()
     }
 }
