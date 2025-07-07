@@ -1,7 +1,7 @@
 package com.gumeinteligencia.api_intermidiaria.infrastructure.dataprovider;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gumeinteligencia.api_intermidiaria.application.gateways.SqsGateway;
+import com.gumeinteligencia.api_intermidiaria.application.gateways.MensageriaGateway;
 import com.gumeinteligencia.api_intermidiaria.domain.Contexto;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.exceptions.DataProviderException;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +13,7 @@ import software.amazon.awssdk.services.sqs.model.SendMessageResponse;
 
 @Component
 @Slf4j
-public class SqsDataProvider implements SqsGateway {
+public class MensageriaDataProvider implements MensageriaGateway {
 
     private final String MENSAGEM_ERRO_ENVIAR_PARA_FILA = "Erro ao enviar contexto para a fila SQS";
     private final SqsClient sqsClient;
@@ -25,7 +25,7 @@ public class SqsDataProvider implements SqsGateway {
     @Value("${aws.sqs.delay}")
     private final Integer delay;
 
-    public SqsDataProvider(
+    public MensageriaDataProvider(
             SqsClient sqsClient,
             ObjectMapper objectMapper,
             @Value("${aws.sqs.url}") String queueUrl,

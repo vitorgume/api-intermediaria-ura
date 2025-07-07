@@ -35,7 +35,7 @@ class SqsDataProviderTest {
     private ObjectMapper objectMapper;
 
     @InjectMocks
-    private SqsDataProvider sqsDataProvider;
+    private MensageriaDataProvider sqsDataProvider;
 
     @Captor
     private ArgumentCaptor<SendMessageRequest> requestCaptor;

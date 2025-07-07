@@ -1,7 +1,7 @@
 package com.gumeinteligencia.api_intermidiaria.application.usecase;
 
 import com.gumeinteligencia.api_intermidiaria.application.gateways.ContextoGateway;
-import com.gumeinteligencia.api_intermidiaria.application.gateways.SqsGateway;
+import com.gumeinteligencia.api_intermidiaria.application.gateways.MensageriaGateway;
 import com.gumeinteligencia.api_intermidiaria.domain.Contexto;
 import com.gumeinteligencia.api_intermidiaria.domain.Mensagem;
 import com.gumeinteligencia.api_intermidiaria.domain.StatusContexto;
@@ -31,7 +31,7 @@ class ContextoUseCaseTest {
     private ContextoGateway gateway;
 
     @Mock
-    private SqsGateway sqsGateway;
+    private MensageriaGateway mensageriaGateway;
 
     @InjectMocks
     private ContextoUseCase contextoUseCase;
@@ -68,24 +68,24 @@ class ContextoUseCaseTest {
                 .build();
 
         when(gateway.salvar(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        when(sqsGateway.enviarParaFila(any())).thenReturn(null);
+        when(mensageriaGateway.enviarParaFila(any())).thenReturn(null);
 
         contextoUseCase.processarContextoExistente(contexto, mensagem);
 
         verify(gateway, Mockito.times(2)).salvar(any(Contexto.class));
-        verify(sqsGateway).enviarParaFila(any(Contexto.class));
+        verify(mensageriaGateway).enviarParaFila(any(Contexto.class));
     }
 
     @Test
     void deveIniciarNovoContexto() {
         when(gateway.salvar(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        when(sqsGateway.enviarParaFila(any())).thenReturn(null);
+        when(mensageriaGateway.enviarParaFila(any())).thenReturn(null);
 
         contextoUseCase.iniciarNovoContexto(mensagem);
 
         ArgumentCaptor<Contexto> captor = ArgumentCaptor.forClass(Contexto.class);
         verify(gateway).salvar(captor.capture());
-        verify(sqsGateway).enviarParaFila(captor.getValue());
+        verify(mensageriaGateway).enviarParaFila(captor.getValue());
 
         Contexto contextoCriado = captor.getValue();
         assertEquals(telefone, contextoCriado.getTelefone());

@@ -1,7 +1,7 @@
 package com.gumeinteligencia.api_intermidiaria.application.usecase;
 
 import com.gumeinteligencia.api_intermidiaria.application.gateways.ContextoGateway;
-import com.gumeinteligencia.api_intermidiaria.application.gateways.SqsGateway;
+import com.gumeinteligencia.api_intermidiaria.application.gateways.MensageriaGateway;
 import com.gumeinteligencia.api_intermidiaria.domain.Contexto;
 import com.gumeinteligencia.api_intermidiaria.domain.Mensagem;
 import com.gumeinteligencia.api_intermidiaria.domain.StatusContexto;
@@ -20,7 +20,7 @@ import java.util.UUID;
 public class ContextoUseCase {
 
     private final ContextoGateway gateway;
-    private final SqsGateway sqsGateway;
+    private final MensageriaGateway mensageriaGateway;
 
     public Optional<Contexto> consultarPorTelefone(String telefone) {
         return gateway.consultarPorTelefone(telefone);
@@ -45,7 +45,7 @@ public class ContextoUseCase {
 
         log.info("Enviando contexto para a fila. Contexto: {}", contexto);
 
-        var response = sqsGateway.enviarParaFila(novoContexto);
+        var response = mensageriaGateway.enviarParaFila(novoContexto);
 
         log.info("Contexto enviado com sucesso. Telefone: {}, Response: {}", contexto.getTelefone(), response);
 
@@ -66,7 +66,7 @@ public class ContextoUseCase {
 
         log.info("Enviando contexto para a fila. Contexto: {}", novoContexto);
 
-        var response = sqsGateway.enviarParaFila(novoContexto);
+        var response = mensageriaGateway.enviarParaFila(novoContexto);
 
         log.info("Contexto enviado com sucesso. Telefone: {}, Response: {}", novoContexto.getTelefone(), response);
 
