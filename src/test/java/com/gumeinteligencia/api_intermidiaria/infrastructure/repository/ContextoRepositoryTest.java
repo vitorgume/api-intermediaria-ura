@@ -2,6 +2,7 @@ package com.gumeinteligencia.api_intermidiaria.infrastructure.repository;
 
 import com.gumeinteligencia.api_intermidiaria.domain.StatusContexto;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.repository.entity.ContextoEntity;
+import io.awspring.cloud.dynamodb.DynamoDbTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,10 +32,7 @@ import static org.mockito.Mockito.when;
 class ContextoRepositoryTest {
 
     @Mock
-    private DynamoDbEnhancedClient enhancedClient;
-
-    @Mock
-    private DynamoDbTable<ContextoEntity> contextoTable;
+    private DynamoDbTemplate dynamoDbTemplate;
 
     @InjectMocks
     private ContextoRepository contextoRepository;
@@ -44,8 +42,6 @@ class ContextoRepositoryTest {
 
     private ContextoEntity contexto;
 
-    private Key key;
-
     @BeforeEach
     void setUp() {
         contexto = ContextoEntity.builder()
@@ -54,39 +50,35 @@ class ContextoRepositoryTest {
                 .status(StatusContexto.ATIVO)
                 .mensagens(List.of("Olá"))
                 .build();
-
-        key = Key.builder().partitionValue(contexto.getId().toString()).build();
-
-        when(enhancedClient.table(eq("contextos"), ArgumentMatchers.<TableSchema<ContextoEntity>>any()))
-                .thenReturn(contextoTable);
     }
 
     @Test
     void deveSalvarContextoComSucesso() {
-
-        when(contextoTable.getItem(eq(key))).thenReturn(contexto);
+        when(dynamoDbTemplate.save(contexto)).thenReturn(contexto);
 
         ContextoEntity salvo = contextoRepository.salvar(contexto);
 
-        verify(contextoTable).putItem(contexto);
-        verify(contextoTable).getItem(eq(key));
+        verify(dynamoDbTemplate).save(contexto);
         assertEquals(contexto.getId(), salvo.getId());
     }
 
     @Test
     void deveBuscarPorIdComSucesso() {
-        when(contextoTable.getItem(eq(key))).thenReturn(contexto);
+        Key key = Key.builder().partitionValue(id.toString()).build();
+
+        when(dynamoDbTemplate.load(eq(key), eq(ContextoEntity.class))).thenReturn(contexto);
 
         Optional<ContextoEntity> encontrado = contextoRepository.buscarPorId(id.toString());
 
-        verify(contextoTable).getItem(eq(key));
         assertTrue(encontrado.isPresent());
         assertEquals(contexto.getTelefone(), encontrado.get().getTelefone());
     }
 
     @Test
     void deveRetornarVazioAoBuscarPorIdInexistente() {
-        when(contextoTable.getItem(any(Key.class))).thenReturn(null);
+        Key key = Key.builder().partitionValue("inexistente").build();
+
+        when(dynamoDbTemplate.load(eq(key), eq(ContextoEntity.class))).thenReturn(null);
 
         Optional<ContextoEntity> encontrado = contextoRepository.buscarPorId("inexistente");
 
@@ -95,10 +87,9 @@ class ContextoRepositoryTest {
 
     @Test
     void deveBuscarPorTelefoneComSucesso() {
-        Page<ContextoEntity> page = Page.create(List.of(contexto), null);
-        PageIterable<ContextoEntity> iterable = PageIterable.create(() -> List.of(page).iterator());
+        Key key = Key.builder().partitionValue(telefone).build();
 
-        when(contextoTable.scan(ArgumentMatchers.<ScanEnhancedRequest>any())).thenReturn(iterable);
+        when(dynamoDbTemplate.load(eq(key), eq(ContextoEntity.class))).thenReturn(contexto);
 
         Optional<ContextoEntity> resultado = contextoRepository.buscarPorTelefone(telefone);
 
@@ -108,15 +99,12 @@ class ContextoRepositoryTest {
 
     @Test
     void deveRetornarVazioAoBuscarTelefoneInexistente() {
-        Page<ContextoEntity> page = Page.create(List.of(), null);
-        PageIterable<ContextoEntity> emptyIterable = PageIterable.create(() -> List.of(page).iterator());
+        Key key = Key.builder().partitionValue("000000000").build();
 
-        when(contextoTable.scan(ArgumentMatchers.<ScanEnhancedRequest>any())).thenReturn(emptyIterable);
+        when(dynamoDbTemplate.load(eq(key), eq(ContextoEntity.class))).thenReturn(null);
 
         Optional<ContextoEntity> resultado = contextoRepository.buscarPorTelefone("000000000");
 
         assertTrue(resultado.isEmpty());
     }
-
-
 }

@@ -4,10 +4,8 @@ import com.gumeinteligencia.api_intermidiaria.infrastructure.repository.entity.O
 import io.awspring.cloud.dynamodb.DynamoDbTemplate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +19,9 @@ public class OutroContatoRepository {
     }
 
     public List<OutroContatoEntity> listar() {
-        dynamoDbTemplate.scanAll()
+        return dynamoDbTemplate.scanAll(OutroContatoEntity.class)
+                .stream()
+                .flatMap(page -> page.items().stream())
+                .toList();
     }
 }

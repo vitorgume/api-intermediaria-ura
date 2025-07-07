@@ -12,13 +12,14 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 import java.net.URI;
 
 @Configuration
+@Profile("!test")
 public class SqsConfig {
 
-    @Value("${aws.sqs.endpoint}")
+    @Value("${aws.sqs.url}")
     private final String sqsEndpoint;
 
     public SqsConfig (
-            @Value("${aws.sqs.endpoint}") String sqsEndpoint
+            @Value("${aws.sqs.url}") String sqsEndpoint
     ) {
         this.sqsEndpoint = sqsEndpoint;
     }

@@ -2,6 +2,7 @@ package com.gumeinteligencia.api_intermidiaria.infrastructure.repository;
 
 import com.gumeinteligencia.api_intermidiaria.domain.outroContato.Setor;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.repository.entity.OutroContatoEntity;
+import io.awspring.cloud.dynamodb.DynamoDbTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,10 +27,7 @@ import static org.mockito.Mockito.when;
 class OutroContatoRepositoryTest {
 
     @Mock
-    private DynamoDbEnhancedClient enhancedClient;
-
-    @Mock
-    private DynamoDbTable<OutroContatoEntity> outroContatoTable;
+    private DynamoDbTemplate dynamoDbTemplate;
 
     @InjectMocks
     private OutroContatoRepository outroContatoRepository;
@@ -45,24 +43,25 @@ class OutroContatoRepositoryTest {
                 .descricao("Contato para urgências")
                 .setor(Setor.FINANCEIRO)
                 .build();
-
-        when(enhancedClient.table(eq("outros_contatos"), ArgumentMatchers.<TableSchema<OutroContatoEntity>>any()))
-                .thenReturn(outroContatoTable);
     }
 
     @Test
     void deveSalvarOutroContatoComSucesso() {
-        outroContatoRepository.salvar(outroContato);
+        when(dynamoDbTemplate.save(outroContato)).thenReturn(outroContato);
 
-        verify(outroContatoTable).putItem(outroContato);
+        OutroContatoEntity salvo = outroContatoRepository.salvar(outroContato);
+
+        verify(dynamoDbTemplate).save(outroContato);
+        assertEquals(outroContato, salvo);
     }
 
     @Test
     void deveListarTodosOsContatos() {
+        // Simula uma página com 1 item
         Page<OutroContatoEntity> page = Page.create(List.of(outroContato), null);
         PageIterable<OutroContatoEntity> iterable = PageIterable.create(() -> List.of(page).iterator());
 
-        when(outroContatoTable.scan()).thenReturn(iterable); // CORREÇÃO AQUI
+        when(dynamoDbTemplate.scanAll(OutroContatoEntity.class)).thenReturn(iterable);
 
         List<OutroContatoEntity> resultado = outroContatoRepository.listar();
 
@@ -73,10 +72,11 @@ class OutroContatoRepositoryTest {
 
     @Test
     void deveRetornarListaVaziaSeNaoHouverContatos() {
+        // Simula uma página vazia
         Page<OutroContatoEntity> page = Page.create(List.of(), null);
         PageIterable<OutroContatoEntity> iterable = PageIterable.create(() -> List.of(page).iterator());
 
-        when(outroContatoTable.scan()).thenReturn(iterable); // CORRIGIDO
+        when(dynamoDbTemplate.scanAll(OutroContatoEntity.class)).thenReturn(iterable);
 
         List<OutroContatoEntity> resultado = outroContatoRepository.listar();
 
