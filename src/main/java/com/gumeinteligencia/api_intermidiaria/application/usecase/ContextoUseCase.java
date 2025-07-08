@@ -23,7 +23,8 @@ public class ContextoUseCase {
     private final MensageriaGateway mensageriaGateway;
 
     public Optional<Contexto> consultarPorTelefone(String telefone) {
-        return gateway.consultarPorTelefone(telefone);
+        Optional<Contexto> contexto = gateway.consultarPorTelefone(telefone);
+        return contexto;
     }
 
     public void processarContextoExistente(Contexto contexto, Mensagem mensagem) {

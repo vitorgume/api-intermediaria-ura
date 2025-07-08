@@ -5,6 +5,8 @@ import io.awspring.cloud.dynamodb.DynamoDbTemplate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
+import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
+import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
 
 import java.util.Optional;
 
@@ -29,10 +31,11 @@ public class ContextoRepository {
     }
 
     public Optional<ContextoEntity> buscarPorTelefone(String telefone) {
-        var key = Key.builder().partitionValue(telefone).build();
+        PageIterable<ContextoEntity> results = dynamoDbTemplate.scan(ScanEnhancedRequest.builder().build(), ContextoEntity.class);
 
-        ContextoEntity contexto = dynamoDbTemplate.load(key,ContextoEntity.class);
-
-        return contexto == null ? Optional.empty() : Optional.of(contexto);
+        return results.items()
+                .stream()
+                .filter(c -> telefone.equals(c.getTelefone()))
+                .findFirst();
     }
 }

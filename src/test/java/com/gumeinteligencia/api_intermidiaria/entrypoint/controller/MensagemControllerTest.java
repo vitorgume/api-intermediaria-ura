@@ -3,17 +3,20 @@ package com.gumeinteligencia.api_intermidiaria.entrypoint.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gumeinteligencia.api_intermidiaria.application.gateways.MensageriaGateway;
 import com.gumeinteligencia.api_intermidiaria.application.usecase.ContextoUseCase;
+import com.gumeinteligencia.api_intermidiaria.application.usecase.validadorMensagens.ValidadorMensagemUseCase;
 import com.gumeinteligencia.api_intermidiaria.domain.Contexto;
 import com.gumeinteligencia.api_intermidiaria.domain.Mensagem;
 import com.gumeinteligencia.api_intermidiaria.domain.StatusContexto;
 import com.gumeinteligencia.api_intermidiaria.entrypoint.controller.dto.MensagemDto;
 import com.gumeinteligencia.api_intermidiaria.entrypoint.controller.dto.TextoDto;
+import com.gumeinteligencia.api_intermidiaria.infrastructure.mapper.ContextoMapper;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.repository.ContextoRepository;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.repository.OutroContatoRepository;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.repository.entity.ContextoEntity;
 import io.awspring.cloud.dynamodb.DynamoDbTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -57,6 +60,9 @@ class MensagemControllerTest {
     @MockitoBean
     private ContextoUseCase contextoUseCase;
 
+    @MockitoBean
+    private ValidadorMensagemUseCase validadorMensagemUseCase;
+
     private MensagemDto mensagemDto;
 
     private ContextoEntity contextoEntity;
@@ -96,7 +102,7 @@ class MensagemControllerTest {
     @Test
     void deveProcessarMensagemDeUmContextoExistenteComSucesso() throws Exception {
         when(outroContatoRepository.listar()).thenReturn(List.of());
-        when(contextoRepository.buscarPorTelefone(any())).thenReturn(Optional.of(contextoEntity));
+        when(contextoUseCase.consultarPorTelefone(any())).thenReturn(Optional.of(ContextoMapper.paraDomain(contextoEntity)));
         when(contextoRepository.salvar(any())).thenReturn(contextoEntity);
         when(mensageriaGateway.enviarParaFila(any())).thenReturn(null);
 

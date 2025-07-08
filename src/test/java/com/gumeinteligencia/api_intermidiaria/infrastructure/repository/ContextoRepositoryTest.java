@@ -2,6 +2,7 @@ package com.gumeinteligencia.api_intermidiaria.infrastructure.repository;
 
 import com.gumeinteligencia.api_intermidiaria.domain.StatusContexto;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.repository.entity.ContextoEntity;
+import com.gumeinteligencia.api_intermidiaria.infrastructure.repository.entity.OutroContatoEntity;
 import io.awspring.cloud.dynamodb.DynamoDbTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
@@ -87,9 +89,12 @@ class ContextoRepositoryTest {
 
     @Test
     void deveBuscarPorTelefoneComSucesso() {
-        Key key = Key.builder().partitionValue(telefone).build();
+        contexto.setTelefone(telefone);
 
-        when(dynamoDbTemplate.load(eq(key), eq(ContextoEntity.class))).thenReturn(contexto);
+        Page<ContextoEntity> page = Page.create(List.of(contexto), null);
+        PageIterable<ContextoEntity> iterable = PageIterable.create(() -> List.of(page).iterator());
+
+        when(dynamoDbTemplate.scan(ScanEnhancedRequest.builder().build(), ContextoEntity.class)).thenReturn(iterable);
 
         Optional<ContextoEntity> resultado = contextoRepository.buscarPorTelefone(telefone);
 
@@ -99,9 +104,10 @@ class ContextoRepositoryTest {
 
     @Test
     void deveRetornarVazioAoBuscarTelefoneInexistente() {
-        Key key = Key.builder().partitionValue("000000000").build();
+        Page<ContextoEntity> page = Page.create(List.of(), null);
+        PageIterable<ContextoEntity> iterable = PageIterable.create(() -> List.of(page).iterator());
 
-        when(dynamoDbTemplate.load(eq(key), eq(ContextoEntity.class))).thenReturn(null);
+        when(dynamoDbTemplate.scan(ScanEnhancedRequest.builder().build(), ContextoEntity.class)).thenReturn(iterable);
 
         Optional<ContextoEntity> resultado = contextoRepository.buscarPorTelefone("000000000");
 

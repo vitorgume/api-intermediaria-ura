@@ -2,11 +2,13 @@ package com.gumeinteligencia.api_intermidiaria.infrastructure.dataprovider;
 
 import com.gumeinteligencia.api_intermidiaria.domain.outroContato.OutroContato;
 import com.gumeinteligencia.api_intermidiaria.domain.outroContato.Setor;
+import com.gumeinteligencia.api_intermidiaria.infrastructure.exceptions.DataProviderException;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.repository.OutroContatoRepository;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.repository.entity.OutroContatoEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -26,7 +28,7 @@ class OutroContatoDataProviderTest {
     @Mock
     private OutroContatoRepository repository;
 
-    @Mock
+    @InjectMocks
     private OutroContatoDataProvider dataProvider;
 
     private List<OutroContatoEntity> outroContatos;
@@ -48,7 +50,7 @@ class OutroContatoDataProviderTest {
     }
 
     @Test
-    void listar() {
+    void deveListarComSucesso() {
         when(repository.listar()).thenReturn(outroContatos);
 
         List<OutroContato> resultado = dataProvider.listar();
@@ -56,5 +58,14 @@ class OutroContatoDataProviderTest {
         for (int i = 0; i < resultado.size(); i++) {
             assertEquals(resultado.get(i).getTelefone(), outroContatos.get(i).getTelefone());
         }
+    }
+
+    @Test
+    void deveLancarExceptionAoListar() {
+        when(repository.listar()).thenThrow(new RuntimeException("Erro simulado"));
+
+        DataProviderException ex = assertThrows(DataProviderException.class, () -> dataProvider.listar());
+
+        assertEquals("Erro ao listar outros contatos.", ex.getMessage());
     }
 }
