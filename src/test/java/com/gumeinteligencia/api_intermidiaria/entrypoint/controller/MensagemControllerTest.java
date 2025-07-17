@@ -24,6 +24,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 import java.util.List;
 import java.util.Optional;
@@ -59,6 +60,9 @@ class MensagemControllerTest {
 
     @MockitoBean
     private ContextoUseCase contextoUseCase;
+
+    @MockitoBean
+    private DynamoDbClient dynamoDbClient;
 
     @MockitoBean
     private ValidadorMensagemUseCase validadorMensagemUseCase;
@@ -102,7 +106,7 @@ class MensagemControllerTest {
     @Test
     void deveProcessarMensagemDeUmContextoExistenteComSucesso() throws Exception {
         when(outroContatoRepository.listar()).thenReturn(List.of());
-        when(contextoUseCase.consultarPorTelefone(any())).thenReturn(Optional.of(ContextoMapper.paraDomain(contextoEntity)));
+        when(contextoUseCase.consultarPorTelefoneAtivo(any())).thenReturn(Optional.of(ContextoMapper.paraDomain(contextoEntity)));
         when(contextoRepository.salvar(any())).thenReturn(contextoEntity);
         when(mensageriaGateway.enviarParaFila(any())).thenReturn(null);
 

@@ -11,14 +11,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
+import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -26,6 +27,9 @@ class ContextoDataProviderTest {
 
     @Mock
     private ContextoRepository repository;
+
+    @Mock
+    private DynamoDbClient dynamoDbClient;
 
     @InjectMocks
     private ContextoDataProvider dataProvider;
@@ -51,32 +55,48 @@ class ContextoDataProviderTest {
     }
 
     @Test
-    void deveConsultarPorTelefoneComSucesso() {
-        when(repository.buscarPorTelefone("45999999999")).thenReturn(Optional.of(contextoEntity));
+    void deveConsultarPorTelefoneAtivoComSucesso() {
+        Map<String, AttributeValue> itemMap = new HashMap<>();
+        itemMap.put("id", AttributeValue.fromS(contextoEntity.getId().toString()));
+        itemMap.put("telefone", AttributeValue.fromS(contextoEntity.getTelefone()));
+        itemMap.put("status", AttributeValue.fromS(contextoEntity.getStatus().name()));
+        itemMap.put("mensagens", AttributeValue.fromSs(contextoEntity.getMensagens()));
 
-        Optional<Contexto> resultado = dataProvider.consultarPorTelefone("45999999999");
+        QueryResponse mockResponse = QueryResponse.builder()
+                .items(List.of(itemMap))
+                .build();
+
+        when(dynamoDbClient.query(any(QueryRequest.class))).thenReturn(mockResponse);
+
+        Optional<Contexto> resultado = dataProvider.consultarPorTelefoneAtivo("45999999999");
 
         assertTrue(resultado.isPresent());
-        assertEquals(contexto.getTelefone(), resultado.get().getTelefone());
+        assertEquals("45999999999", resultado.get().getTelefone());
+        assertEquals(List.of("Oi"), resultado.get().getMensagens());
+        assertEquals(StatusContexto.ATIVO, resultado.get().getStatus());
     }
 
     @Test
     void deveRetornarVazioQuandoNaoEncontrarTelefone() {
-        when(repository.buscarPorTelefone("000000000")).thenReturn(Optional.empty());
+        QueryResponse responseVazio = QueryResponse.builder()
+                .items(List.of())
+                .build();
 
-        Optional<Contexto> resultado = dataProvider.consultarPorTelefone("000000000");
+        when(dynamoDbClient.query(any(QueryRequest.class))).thenReturn(responseVazio);
+
+        Optional<Contexto> resultado = dataProvider.consultarPorTelefoneAtivo("000000000");
 
         assertTrue(resultado.isEmpty());
     }
 
     @Test
     void deveLancarExcecaoAoConsultarTelefoneComErro() {
-        when(repository.buscarPorTelefone(anyString())).thenThrow(new RuntimeException("Erro simulado"));
+        when(dynamoDbClient.query(any(QueryRequest.class))).thenThrow(new RuntimeException("Erro simulado"));
 
         DataProviderException ex = assertThrows(DataProviderException.class, () ->
-                dataProvider.consultarPorTelefone("erro"));
+                dataProvider.consultarPorTelefoneAtivo("erro"));
 
-        assertEquals("Erro ao consultar contexto pelo seu telefone.", ex.getMessage());
+        assertEquals("Erro ao consultar contexto pelo seu telefone e ativo.", ex.getMessage());
     }
 
     @Test

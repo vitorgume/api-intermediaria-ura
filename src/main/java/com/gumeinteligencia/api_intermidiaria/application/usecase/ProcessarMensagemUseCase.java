@@ -23,7 +23,7 @@ public class ProcessarMensagemUseCase {
         }
 
         contextoUseCase
-                    .consultarPorTelefone(mensagem.getTelefone())
+                    .consultarPorTelefoneAtivo(mensagem.getTelefone())
                 .ifPresentOrElse(
                         contexto -> contextoUseCase.processarContextoExistente(contexto, mensagem),
                         () -> contextoUseCase.iniciarNovoContexto(mensagem)

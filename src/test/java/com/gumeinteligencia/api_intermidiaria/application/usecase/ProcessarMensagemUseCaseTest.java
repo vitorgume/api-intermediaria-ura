@@ -42,7 +42,7 @@ class ProcessarMensagemUseCaseTest {
 
         processarMensagemUseCase.processarNovaMensagem(mensagem);
 
-        verify(contextoUseCase, never()).consultarPorTelefone(any());
+        verify(contextoUseCase, never()).consultarPorTelefoneAtivo(any());
         verify(contextoUseCase, never()).processarContextoExistente(any(), any());
         verify(contextoUseCase, never()).iniciarNovoContexto(any());
     }
@@ -52,7 +52,7 @@ class ProcessarMensagemUseCaseTest {
         Contexto contexto = Contexto.builder().telefone("44999999999").build();
 
         when(validadorMensagem.deveIngorar(mensagem)).thenReturn(false);
-        when(contextoUseCase.consultarPorTelefone(mensagem.getTelefone())).thenReturn(Optional.of(contexto));
+        when(contextoUseCase.consultarPorTelefoneAtivo(mensagem.getTelefone())).thenReturn(Optional.of(contexto));
 
         processarMensagemUseCase.processarNovaMensagem(mensagem);
 
@@ -63,7 +63,7 @@ class ProcessarMensagemUseCaseTest {
     @Test
     void deveProcessarMensagemSemContextoExistente() {
         when(validadorMensagem.deveIngorar(mensagem)).thenReturn(false);
-        when(contextoUseCase.consultarPorTelefone(mensagem.getTelefone())).thenReturn(Optional.empty());
+        when(contextoUseCase.consultarPorTelefoneAtivo(mensagem.getTelefone())).thenReturn(Optional.empty());
 
         processarMensagemUseCase.processarNovaMensagem(mensagem);
 

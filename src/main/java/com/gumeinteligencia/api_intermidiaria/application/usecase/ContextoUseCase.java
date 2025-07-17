@@ -22,8 +22,8 @@ public class ContextoUseCase {
     private final ContextoGateway gateway;
     private final MensageriaGateway mensageriaGateway;
 
-    public Optional<Contexto> consultarPorTelefone(String telefone) {
-        Optional<Contexto> contexto = gateway.consultarPorTelefone(telefone);
+    public Optional<Contexto> consultarPorTelefoneAtivo(String telefone) {
+        Optional<Contexto> contexto = gateway.consultarPorTelefoneAtivo(telefone);
         return contexto;
     }
 
