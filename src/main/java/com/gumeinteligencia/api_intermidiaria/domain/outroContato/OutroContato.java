@@ -10,7 +10,7 @@ import java.util.UUID;
 @Builder
 @ToString
 public class OutroContato {
-    private Long id;
+    private UUID id;
     private String nome;
     private String telefone;
     private String descricao;

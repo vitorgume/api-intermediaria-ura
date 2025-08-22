@@ -17,14 +17,14 @@ import java.util.UUID;
 @Builder
 public class OutroContatoEntity {
 
-    private Long id;
+    private UUID id;
     private String nome;
     private String telefone;
     private String descricao;
     private Setor setor;
 
     @DynamoDbPartitionKey
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 

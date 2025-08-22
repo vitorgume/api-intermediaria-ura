@@ -17,6 +17,7 @@ import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
@@ -37,7 +38,7 @@ class OutroContatoRepositoryTest {
     @BeforeEach
     void setUp() {
         outroContato = OutroContatoEntity.builder()
-                .id(1L)
+                .id(UUID.randomUUID())
                 .nome("Maria")
                 .telefone("47999999999")
                 .descricao("Contato para urgências")
