@@ -32,25 +32,22 @@ public class ProcessarMensagemUseCase {
                 .ifPresentOrElse(contexto -> {
                     contextoUseCase.processarContextoExistente(contexto, mensagem);
                 }, () -> {
-//                    Optional<Cliente> cliente = clienteUseCase.consultarPorTelefone(mensagem.getTelefone());
-//
-//                    if(cliente.isEmpty()) {
-//                        boolean usarChatbot = roteadorDeTrafegoUseCase.deveUsarChatbot(mensagem.getTelefone());
-//                        if (usarChatbot) {
-//                            contextoUseCase.iniciarNovoContexto(mensagem);
-//                        } else {
-//                            uraUseCase.enviar(mensagem);
-//                        }
-//                    } else {
-//                        if (cliente.get().getCanal().getCodigo() == 0) {
-//                            contextoUseCase.iniciarNovoContexto(mensagem);
-//                        } else {
-//                            uraUseCase.enviar(mensagem);
-//                        }
-//                    }
+                    Optional<Cliente> cliente = clienteUseCase.consultarPorTelefone(mensagem.getTelefone());
 
-                    contextoUseCase.iniciarNovoContexto(mensagem);
-
+                    if(cliente.isEmpty()) {
+                        boolean usarChatbot = roteadorDeTrafegoUseCase.deveUsarChatbot(mensagem.getTelefone());
+                        if (usarChatbot) {
+                            contextoUseCase.iniciarNovoContexto(mensagem);
+                        } else {
+                            uraUseCase.enviar(mensagem);
+                        }
+                    } else {
+                        if (cliente.get().getCanal().getCodigo() == 0) {
+                            contextoUseCase.iniciarNovoContexto(mensagem);
+                        } else {
+                            uraUseCase.enviar(mensagem);
+                        }
+                    }
                 });
 
         log.info("Mensagem processada com sucesso.");
