@@ -1,0 +1,126 @@
+name: CI/CD - API (Java/Spring ECS)
+
+on:
+  push:
+    branches: [ "main" ]
+    tags: [ "v*" ]
+  pull_request:
+    branches: [ "main" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  id-token: write
+  contents: read
+vars:
+  AWS_REGION:       ${{ vars.AWS_REGION || 'us-east-1' }}
+  AWS_ACCOUNT_ID:   ${{ vars.AWS_ACCOUNT_ID }}
+  ECR_REPOSITORY:   ${{ vars.ECR_REPOSITORY }}        # ex: api-orquestrador
+  ECS_CLUSTER:      ${{ vars.ECS_CLUSTER }}           # ex: neoprint-prod
+  ECS_SERVICE:      ${{ vars.ECS_SERVICE }}           # ex: api-orquestrador-svc
+  ECS_TASK_FAMILY:  ${{ vars.ECS_TASK_FAMILY }}       # ex: api-orquestrador
+  CONTAINER_NAME:   ${{ vars.CONTAINER_NAME || 'app' }} # nome do container na task
+  JAVA_VERSION:     "21"
+
+jobs:
+  test:
+    name: Testes (Maven)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ vars.JAVA_VERSION }}
+          distribution: temurin
+          cache: 'maven'
+
+      - name: Build & Test
+        run: mvn -B -ntp clean verify
+
+      # 👉 Se usa Gradle, troque pelas 2 etapas abaixo e remova Maven:
+      # - uses: gradle/actions/setup-gradle@v3
+      # - run: ./gradlew clean test build
+
+  build_and_push:
+    name: Build & Push para ECR
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: AWS creds (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Garantir repositório no ECR
+        shell: bash
+        run: |
+          set -e
+          aws ecr describe-repositories --repository-names "${ECR_REPOSITORY}" >/dev/null 2>&1 \
+            || aws ecr create-repository --repository-name "${ECR_REPOSITORY}" >/dev/null
+
+      - name: Login ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Definir metadados de imagem (tags)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}
+          tags: |
+            type=sha
+            type=ref,event=tag
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build & Push (Docker)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          platforms: linux/amd64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy_ecs:
+    name: Deploy ECS Service
+    runs-on: ubuntu-latest
+    needs: build_and_push
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: AWS creds (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Render taskdef com nova imagem
+        id: render
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ecs-taskdef.json
+          container-name: ${{ vars.CONTAINER_NAME }}
+          image: ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.ECR_REPOSITORY }}:${{ github.sha }}
+
+      - name: Deploy ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.render.outputs.task-definition }}
+          service: ${{ vars.ECS_SERVICE }}
+          cluster: ${{ vars.ECS_CLUSTER }}
+          wait-for-service-stability: true
