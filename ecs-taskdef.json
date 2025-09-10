@@ -1,5 +1,5 @@
 {
-  "family": "api-orquestrador",
+  "family": "api-intermediaria-ura",
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "512",
@@ -9,13 +9,17 @@
   "containerDefinitions": [
     {
       "name": "app",
-      "image": "<ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/api-orquestrador:latest",
+      "image": "<ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/api-intermediaria-ura:latest",
       "essential": true,
       "portMappings": [{ "containerPort": 8080, "protocol": "tcp" }],
+      "healthCheck": {
+        "command": ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health || exit 1"],
+        "interval": 10, "timeout": 5, "retries": 3, "startPeriod": 30
+      },
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/api-orquestrador",
+          "awslogs-group": "/ecs/api-intermediaria-ura",
           "awslogs-region": "us-east-1",
           "awslogs-stream-prefix": "ecs"
         }
