@@ -10,6 +10,7 @@ import com.gumeinteligencia.api_intermidiaria.domain.StatusContexto;
 import com.gumeinteligencia.api_intermidiaria.entrypoint.controller.dto.MensagemDto;
 import com.gumeinteligencia.api_intermidiaria.entrypoint.controller.dto.TextoDto;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.mapper.ContextoMapper;
+import com.gumeinteligencia.api_intermidiaria.infrastructure.repository.CLienteRepository;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.repository.ContextoRepository;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.repository.OutroContatoRepository;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.repository.entity.ContextoEntity;
@@ -35,7 +36,20 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@SpringBootTest(properties = {
+        "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration,org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration",
+        "ura.url=teste",
+        "aws.sqs.url=teste",
+        "spring.datasource.url=teste",
+        "spring.datasource.username=teste",
+        "spring.datasource.password=teste",
+        "ura.api.key=teste",
+        "ura.url=teste",
+        "experimentos.chatbot.percentual=30",
+        "aws.sqs.delay=0",
+        "management.endpoints.web.exposure.include=health,info",
+        "management.endpoint.health.probes.enabled=true"
+})
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 class MensagemControllerTest {
@@ -66,6 +80,9 @@ class MensagemControllerTest {
 
     @MockitoBean
     private ValidadorMensagemUseCase validadorMensagemUseCase;
+
+    @MockitoBean
+    private CLienteRepository cLienteRepository;
 
     private MensagemDto mensagemDto;
 
