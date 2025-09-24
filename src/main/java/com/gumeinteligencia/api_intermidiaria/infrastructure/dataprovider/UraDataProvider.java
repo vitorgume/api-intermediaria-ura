@@ -7,6 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.util.retry.Retry;
+
+import java.time.Duration;
 
 @Component
 @Slf4j
@@ -38,6 +41,14 @@ public class UraDataProvider implements UraGateway {
                     .bodyValue(mensagem)
                     .retrieve()
                     .bodyToMono(MensagemDto.class)
+                    .retryWhen(
+                            Retry.backoff(3, Duration.ofSeconds(2))
+                                    .filter(throwable -> {
+                                        log.warn("Tentando novamente após erro: {}", throwable.getMessage());
+                                        return true;
+                                    })
+                    )
+                    .doOnError(e -> log.error("{} | Erro: {}", "Erro ao enviar mensagem para URA", e.getMessage()))
                     .block();
         } catch (Exception ex) {
             log.error(MENSAGEM_ERRO_ENVIAR_MENSAGEM_URA, ex);

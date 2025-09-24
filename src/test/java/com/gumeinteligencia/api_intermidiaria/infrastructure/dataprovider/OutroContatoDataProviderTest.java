@@ -17,6 +17,7 @@ import org.mockito.quality.Strictness;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -39,7 +40,7 @@ class OutroContatoDataProviderTest {
 
         for (int i = 0; i < 2; i++) {
             outroContatos.add(OutroContatoEntity.builder()
-                    .id(1L)
+                    .id(UUID.randomUUID())
                     .nome("Nome teste")
                     .setor(Setor.LOGISTICA)
                     .descricao("Descricao teste")

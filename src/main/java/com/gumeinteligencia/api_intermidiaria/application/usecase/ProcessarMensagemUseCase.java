@@ -48,7 +48,6 @@ public class ProcessarMensagemUseCase {
                             uraUseCase.enviar(mensagem);
                         }
                     }
-
                 });
 
         log.info("Mensagem processada com sucesso.");

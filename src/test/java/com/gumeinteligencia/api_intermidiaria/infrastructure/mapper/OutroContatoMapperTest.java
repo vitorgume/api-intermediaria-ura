@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 class OutroContatoMapperTest {
 
     private OutroContato outroContatoDomain;
@@ -15,7 +17,7 @@ class OutroContatoMapperTest {
     @BeforeEach
     void setUp() {
         outroContatoDomain = OutroContato.builder()
-                .id(1L)
+                .id(UUID.randomUUID())
                 .nome("Nome teste")
                 .setor(Setor.LOGISTICA)
                 .descricao("Descricao teste")
@@ -23,7 +25,7 @@ class OutroContatoMapperTest {
                 .build();
 
         outroContatoEntity = OutroContatoEntity.builder()
-                .id(1L)
+                .id(UUID.randomUUID())
                 .nome("Nome teste")
                 .setor(Setor.LOGISTICA)
                 .descricao("Descricao teste")
