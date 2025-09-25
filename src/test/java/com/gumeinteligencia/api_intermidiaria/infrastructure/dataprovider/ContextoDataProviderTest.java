@@ -8,6 +8,7 @@ import com.gumeinteligencia.api_intermidiaria.infrastructure.repository.entity.C
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -53,6 +54,8 @@ class ContextoDataProviderTest {
                 .mensagens(contextoEntity.getMensagens())
                 .build();
     }
+
+    // -------------------- seus testes originais --------------------
 
     @Test
     void deveConsultarPorTelefoneAtivoComSucesso() {
@@ -119,4 +122,156 @@ class ContextoDataProviderTest {
         assertEquals("Erro ao salvar contexto.", ex.getMessage());
     }
 
+    // -------------------- NOVOS TESTES (aumentam branch coverage) --------------------
+
+    @Test
+    void deveConstruirQueryRequestCorretamente() {
+        // arrange: resposta com 1 item válido
+        Map<String, AttributeValue> item = new HashMap<>();
+        item.put("id", AttributeValue.fromS(UUID.randomUUID().toString()));
+        item.put("telefone", AttributeValue.fromS("45999999999"));
+        item.put("status", AttributeValue.fromS(StatusContexto.ATIVO.name()));
+        item.put("mensagens", AttributeValue.fromSs(List.of("Oi")));
+
+        QueryResponse mockResponse = QueryResponse.builder()
+                .items(List.of(item))
+                .build();
+
+        ArgumentCaptor<QueryRequest> captor = ArgumentCaptor.forClass(QueryRequest.class);
+        when(dynamoDbClient.query(captor.capture())).thenReturn(mockResponse);
+
+        // act
+        dataProvider.consultarPorTelefoneAtivo("45999999999");
+
+        // assert: valida campos de QueryRequest
+        QueryRequest sent = captor.getValue();
+        assertEquals("contexto_entity", sent.tableName());
+        assertEquals("TelefoneStatusIndex", sent.indexName());
+        assertEquals("telefone = :telefone AND #status = :status", sent.keyConditionExpression());
+        assertEquals(Integer.valueOf(1), sent.limit());
+        assertEquals("status", sent.expressionAttributeNames().get("#status"));
+        assertEquals("45999999999", sent.expressionAttributeValues().get(":telefone").s());
+        assertEquals("ATIVO", sent.expressionAttributeValues().get(":status").s());
+    }
+
+    @Test
+    void deveConverterMensagensQuandoAtributoMensagensAusente() {
+        Map<String, AttributeValue> item = new HashMap<>();
+        item.put("id", AttributeValue.fromS(UUID.randomUUID().toString()));
+        item.put("telefone", AttributeValue.fromS("111"));
+        item.put("status", AttributeValue.fromS(StatusContexto.ATIVO.name()));
+        // sem chave "mensagens"
+
+        QueryResponse mockResponse = QueryResponse.builder()
+                .items(List.of(item))
+                .build();
+
+        when(dynamoDbClient.query(any(QueryRequest.class))).thenReturn(mockResponse);
+
+        Optional<Contexto> out = dataProvider.consultarPorTelefoneAtivo("111");
+        assertTrue(out.isPresent());
+        assertNotNull(out.get().getMensagens());
+        assertTrue(out.get().getMensagens().isEmpty(), "Quando não há 'mensagens', deve voltar lista vazia");
+    }
+
+    @Test
+    void deveConverterMensagensQuandoVemComoListaL() {
+        // mensagens via atributo L (lista de AttributeValue S)
+        List<AttributeValue> l = List.of(
+                AttributeValue.builder().s("A").build(),
+                AttributeValue.builder().s("B").build(),
+                AttributeValue.builder().s("C").build()
+        );
+        AttributeValue mensagensL = AttributeValue.builder().l(l).build();
+
+        Map<String, AttributeValue> item = new HashMap<>();
+        item.put("id", AttributeValue.fromS(UUID.randomUUID().toString()));
+        item.put("telefone", AttributeValue.fromS("222"));
+        item.put("status", AttributeValue.fromS(StatusContexto.ATIVO.name()));
+        item.put("mensagens", mensagensL);
+
+        QueryResponse mockResponse = QueryResponse.builder()
+                .items(List.of(item))
+                .build();
+
+        when(dynamoDbClient.query(any(QueryRequest.class))).thenReturn(mockResponse);
+
+        Optional<Contexto> out = dataProvider.consultarPorTelefoneAtivo("222");
+        assertTrue(out.isPresent());
+        assertEquals(List.of("A", "B", "C"), out.get().getMensagens());
+    }
+
+    @Test
+    void deveConverterMensagensQuandoSsVazioMasLTemValores() {
+        // força caminho do "else if": ss presente porém vazio + l não vazio
+        List<AttributeValue> l = List.of(
+                AttributeValue.builder().s("X").build(),
+                AttributeValue.builder().s("Y").build()
+        );
+        AttributeValue mensagensMistas = AttributeValue.builder()
+                .ss(new ArrayList<>()) // ss vazio
+                .l(l)                  // l com valores
+                .build();
+
+        Map<String, AttributeValue> item = new HashMap<>();
+        item.put("id", AttributeValue.fromS(UUID.randomUUID().toString()));
+        item.put("telefone", AttributeValue.fromS("333"));
+        item.put("status", AttributeValue.fromS(StatusContexto.ATIVO.name()));
+        item.put("mensagens", mensagensMistas);
+
+        QueryResponse mockResponse = QueryResponse.builder()
+                .items(List.of(item))
+                .build();
+
+        when(dynamoDbClient.query(any(QueryRequest.class))).thenReturn(mockResponse);
+
+        Optional<Contexto> out = dataProvider.consultarPorTelefoneAtivo("333");
+        assertTrue(out.isPresent());
+        assertEquals(List.of("X", "Y"), out.get().getMensagens(),
+                "Quando ss está vazio e l tem valores, deve usar l");
+    }
+
+    @Test
+    void deveConverterMensagensQuandoSsELVazios() {
+        // ambos vazios → mensagens deve ficar lista vazia
+        AttributeValue mensagensVazias = AttributeValue.builder()
+                .ss(new ArrayList<>())
+                .l(new ArrayList<>())
+                .build();
+
+        Map<String, AttributeValue> item = new HashMap<>();
+        item.put("id", AttributeValue.fromS(UUID.randomUUID().toString()));
+        item.put("telefone", AttributeValue.fromS("444"));
+        item.put("status", AttributeValue.fromS(StatusContexto.ATIVO.name()));
+        item.put("mensagens", mensagensVazias);
+
+        QueryResponse mockResponse = QueryResponse.builder()
+                .items(List.of(item))
+                .build();
+
+        when(dynamoDbClient.query(any(QueryRequest.class))).thenReturn(mockResponse);
+
+        Optional<Contexto> out = dataProvider.consultarPorTelefoneAtivo("444");
+        assertTrue(out.isPresent());
+        assertNotNull(out.get().getMensagens());
+        assertTrue(out.get().getMensagens().isEmpty(), "Com ss e l vazios, resultado deve ser vazio");
+    }
+
+    @Test
+    void deveLancarIllegalArgumentQuandoStatusInvalido() {
+        Map<String, AttributeValue> item = new HashMap<>();
+        item.put("id", AttributeValue.fromS(UUID.randomUUID().toString()));
+        item.put("telefone", AttributeValue.fromS("555"));
+        item.put("status", AttributeValue.fromS("QUALQUER_COISA")); // inválido p/ valueOf
+        item.put("mensagens", AttributeValue.fromSs(List.of("Oi")));
+
+        QueryResponse mockResponse = QueryResponse.builder()
+                .items(List.of(item))
+                .build();
+
+        when(dynamoDbClient.query(any(QueryRequest.class))).thenReturn(mockResponse);
+
+        assertThrows(IllegalArgumentException.class, () -> dataProvider.consultarPorTelefoneAtivo("555"),
+                "Status inválido deve propagar IllegalArgumentException (fora do try/catch)");
+    }
 }
