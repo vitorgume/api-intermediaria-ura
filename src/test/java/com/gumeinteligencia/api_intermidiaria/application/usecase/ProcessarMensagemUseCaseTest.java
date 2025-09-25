@@ -28,6 +28,12 @@ class ProcessarMensagemUseCaseTest {
     private ContextoUseCase contextoUseCase;
 
     @Mock
+    private UraUseCase uraUseCase;
+
+    @Mock
+    private RoteadorDeTrafegoUseCase roteadorDeTrafegoUseCase;
+
+    @Mock
     private ClienteUseCase clienteUseCase;
 
     @InjectMocks
@@ -35,18 +41,11 @@ class ProcessarMensagemUseCaseTest {
 
     private Mensagem mensagem;
 
-    private Cliente cliente;
-
     @BeforeEach
     void setUp() {
         mensagem = Mensagem.builder()
                 .telefone("44999999999")
                 .mensagem("Olá")
-                .build();
-
-        cliente = Cliente.builder()
-                .id(UUID.randomUUID())
-                .canal(Canal.URA)
                 .build();
     }
 
@@ -59,6 +58,7 @@ class ProcessarMensagemUseCaseTest {
         verify(contextoUseCase, never()).consultarPorTelefoneAtivo(any());
         verify(contextoUseCase, never()).processarContextoExistente(any(), any());
         verify(contextoUseCase, never()).iniciarNovoContexto(any());
+        verifyNoInteractions(uraUseCase, roteadorDeTrafegoUseCase, clienteUseCase);
     }
 
     @Test
@@ -66,23 +66,89 @@ class ProcessarMensagemUseCaseTest {
         Contexto contexto = Contexto.builder().telefone("44999999999").build();
 
         when(validadorMensagem.deveIngorar(mensagem)).thenReturn(false);
-        when(contextoUseCase.consultarPorTelefoneAtivo(mensagem.getTelefone())).thenReturn(Optional.of(contexto));
+        when(contextoUseCase.consultarPorTelefoneAtivo(mensagem.getTelefone()))
+                .thenReturn(Optional.of(contexto));
 
         processarMensagemUseCase.processarNovaMensagem(mensagem);
 
         verify(contextoUseCase).processarContextoExistente(contexto, mensagem);
         verify(contextoUseCase, never()).iniciarNovoContexto(any());
+        verifyNoInteractions(uraUseCase, roteadorDeTrafegoUseCase, clienteUseCase);
     }
 
     @Test
-    void deveProcessarMensagemSemContextoExistente() {
+    void deveIniciarNovoContexto_quandoSemContextoEClienteDoCanalChatbot() {
+        // cliente presente com canal código 0 (CHATBOT)
+        Cliente clienteChatbot = Cliente.builder()
+                .id(UUID.randomUUID())
+                .canal(Canal.CHATBOT) // garanta que getCodigo() == 0
+                .build();
+
         when(validadorMensagem.deveIngorar(mensagem)).thenReturn(false);
-        when(contextoUseCase.consultarPorTelefoneAtivo(mensagem.getTelefone())).thenReturn(Optional.empty());
-        when(clienteUseCase.consultarPorTelefone(Mockito.anyString())).thenReturn(Optional.of(cliente));
+        when(contextoUseCase.consultarPorTelefoneAtivo(mensagem.getTelefone()))
+                .thenReturn(Optional.empty());
+        when(clienteUseCase.consultarPorTelefone(mensagem.getTelefone()))
+                .thenReturn(Optional.of(clienteChatbot));
 
         processarMensagemUseCase.processarNovaMensagem(mensagem);
 
         verify(contextoUseCase).iniciarNovoContexto(mensagem);
         verify(contextoUseCase, never()).processarContextoExistente(any(), any());
+        verify(uraUseCase, never()).enviar(any());
+        verifyNoInteractions(roteadorDeTrafegoUseCase);
+    }
+
+    @Test
+    void deveEnviarParaUra_quandoSemContextoEClienteDoCanalUra() {
+        // cliente presente com canal URA (código ≠ 0)
+        Cliente clienteUra = Cliente.builder()
+                .id(UUID.randomUUID())
+                .canal(Canal.URA)
+                .build();
+
+        when(validadorMensagem.deveIngorar(mensagem)).thenReturn(false);
+        when(contextoUseCase.consultarPorTelefoneAtivo(mensagem.getTelefone()))
+                .thenReturn(Optional.empty());
+        when(clienteUseCase.consultarPorTelefone(mensagem.getTelefone()))
+                .thenReturn(Optional.of(clienteUra));
+
+        processarMensagemUseCase.processarNovaMensagem(mensagem);
+
+        verify(uraUseCase).enviar(mensagem);
+        verify(contextoUseCase, never()).iniciarNovoContexto(any());
+        verify(contextoUseCase, never()).processarContextoExistente(any(), any());
+        verifyNoInteractions(roteadorDeTrafegoUseCase);
+    }
+
+    @Test
+    void deveSeguirRoteador_quandoSemContextoEClienteInexistente_usarChatbotTrue() {
+        when(validadorMensagem.deveIngorar(mensagem)).thenReturn(false);
+        when(contextoUseCase.consultarPorTelefoneAtivo(mensagem.getTelefone()))
+                .thenReturn(Optional.empty());
+        when(clienteUseCase.consultarPorTelefone(mensagem.getTelefone()))
+                .thenReturn(Optional.empty());
+        when(roteadorDeTrafegoUseCase.deveUsarChatbot(mensagem.getTelefone()))
+                .thenReturn(true);
+
+        processarMensagemUseCase.processarNovaMensagem(mensagem);
+
+        verify(contextoUseCase).iniciarNovoContexto(mensagem);
+        verify(uraUseCase, never()).enviar(any());
+    }
+
+    @Test
+    void deveSeguirRoteador_quandoSemContextoEClienteInexistente_usarChatbotFalse() {
+        when(validadorMensagem.deveIngorar(mensagem)).thenReturn(false);
+        when(contextoUseCase.consultarPorTelefoneAtivo(mensagem.getTelefone()))
+                .thenReturn(Optional.empty());
+        when(clienteUseCase.consultarPorTelefone(mensagem.getTelefone()))
+                .thenReturn(Optional.empty());
+        when(roteadorDeTrafegoUseCase.deveUsarChatbot(mensagem.getTelefone()))
+                .thenReturn(false);
+
+        processarMensagemUseCase.processarNovaMensagem(mensagem);
+
+        verify(uraUseCase).enviar(mensagem);
+        verify(contextoUseCase, never()).iniciarNovoContexto(any());
     }
 }
