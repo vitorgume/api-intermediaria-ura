@@ -45,7 +45,6 @@ public class MensageriaDataProvider implements MensageriaGateway {
             SendMessageRequest request = SendMessageRequest.builder()
                     .queueUrl(queueUrl)
                     .messageBody(json)
-                    .delaySeconds(delay)
                     .messageGroupId("message-group-" + contexto.getId().toString())
                     .build();
 
