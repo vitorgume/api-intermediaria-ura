@@ -19,6 +19,7 @@ public class ProcessarMensagemUseCase {
     private final UraUseCase uraUseCase;
     private final RoteadorDeTrafegoUseCase roteadorDeTrafegoUseCase;
     private final ClienteUseCase clienteUseCase;
+    private final AudioUseCase audioUseCase;
 
     public void processarNovaMensagem(Mensagem mensagem) {
         log.info("Processando nova mensagem. Mensagem: {}", mensagem);
@@ -27,6 +28,8 @@ public class ProcessarMensagemUseCase {
             log.info("Mensagem ignorada. Motivo: Validação");
             return;
         }
+
+        mensagem = audioUseCase.trasformar(mensagem);
 
         contextoUseCase.consultarPorTelefoneAtivo(mensagem.getTelefone())
                 .ifPresentOrElse(contexto -> {

@@ -7,9 +7,6 @@ import lombok.*;
 @Setter
 @ToString
 @Builder
-public class MensagemDto {
-    private String phone;
-    private TextoDto text;
-    private ImageDto image;
-    private AudioDto audio;
+public class AudioDto {
+    private String audioUrl;
 }

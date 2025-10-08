@@ -9,6 +9,7 @@ public class MensagemMapper {
         return Mensagem.builder()
                 .telefone(dto.getPhone())
                 .mensagem(dto.getText().getMessage())
+                .urlAudio(dto.getAudio() == null ? "" : dto.getAudio().getAudioUrl())
                 .build();
     }
 }
