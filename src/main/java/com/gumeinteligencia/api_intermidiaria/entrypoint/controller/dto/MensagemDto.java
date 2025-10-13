@@ -12,4 +12,5 @@ public class MensagemDto {
     private TextoDto text;
     private ImageDto image;
     private AudioDto audio;
+    private VideoDto video;
 }

@@ -10,6 +10,8 @@ public class MensagemMapper {
                 .telefone(dto.getPhone())
                 .mensagem(dto.getText().getMessage())
                 .urlAudio(dto.getAudio() == null ? "" : dto.getAudio().getAudioUrl())
+                .urlVideo(dto.getVideo() == null ? "" : dto.getVideo().getVideoUrl())
+                .urlImagem(dto.getImage() == null ? "" : dto.getImage().getImageUrl())
                 .build();
     }
 }

@@ -19,7 +19,7 @@ public class ProcessarMensagemUseCase {
     private final UraUseCase uraUseCase;
     private final RoteadorDeTrafegoUseCase roteadorDeTrafegoUseCase;
     private final ClienteUseCase clienteUseCase;
-    private final AudioUseCase audioUseCase;
+    private final MidiaUseCase midiaUseCase;
 
     public void processarNovaMensagem(Mensagem mensagem) {
         log.info("Processando nova mensagem. Mensagem: {}", mensagem);
@@ -29,7 +29,7 @@ public class ProcessarMensagemUseCase {
             return;
         }
 
-        mensagem = audioUseCase.trasformar(mensagem);
+        midiaUseCase.extrairMidias(mensagem);
 
         contextoUseCase.consultarPorTelefoneAtivo(mensagem.getTelefone())
                 .ifPresentOrElse(contexto -> {
