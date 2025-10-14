@@ -22,16 +22,17 @@ public class MidiaUseCase {
 
         if(!mensagem.getUrlAudio().isBlank()) {
             midiaCliente.adicionarUrl(mensagem.getUrlAudio());
+            gateway.salvar(midiaCliente);
         }
 
         if (!mensagem.getUrlImagem().isBlank()) {
             midiaCliente.adicionarUrl(mensagem.getUrlImagem());
+            gateway.salvar(midiaCliente);
         }
 
         if(!mensagem.getUrlVideo().isBlank()) {
             midiaCliente.adicionarUrl(mensagem.getUrlVideo());
+            gateway.salvar(midiaCliente);
         }
-
-        gateway.salvar(midiaCliente);
     }
 }
