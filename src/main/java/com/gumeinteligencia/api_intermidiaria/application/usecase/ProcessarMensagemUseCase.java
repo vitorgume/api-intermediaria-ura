@@ -29,26 +29,26 @@ public class ProcessarMensagemUseCase {
             return;
         }
 
-        midiaUseCase.extrairMidias(mensagem);
+        Mensagem mensagemFinal = midiaUseCase.extrairMidias(mensagem);
 
         contextoUseCase.consultarPorTelefoneAtivo(mensagem.getTelefone())
                 .ifPresentOrElse(contexto -> {
-                    contextoUseCase.processarContextoExistente(contexto, mensagem);
+                    contextoUseCase.processarContextoExistente(contexto, mensagemFinal);
                 }, () -> {
-                    Optional<Cliente> cliente = clienteUseCase.consultarPorTelefone(mensagem.getTelefone());
+                    Optional<Cliente> cliente = clienteUseCase.consultarPorTelefone(mensagemFinal.getTelefone());
 
                     if(cliente.isEmpty()) {
-                        boolean usarChatbot = roteadorDeTrafegoUseCase.deveUsarChatbot(mensagem.getTelefone());
+                        boolean usarChatbot = roteadorDeTrafegoUseCase.deveUsarChatbot(mensagemFinal.getTelefone());
                         if (usarChatbot) {
-                            contextoUseCase.iniciarNovoContexto(mensagem);
+                            contextoUseCase.iniciarNovoContexto(mensagemFinal);
                         } else {
-                            uraUseCase.enviar(mensagem);
+                            uraUseCase.enviar(mensagemFinal);
                         }
                     } else {
                         if (cliente.get().getCanal().getCodigo() == 0) {
-                            contextoUseCase.iniciarNovoContexto(mensagem);
+                            contextoUseCase.iniciarNovoContexto(mensagemFinal);
                         } else {
-                            uraUseCase.enviar(mensagem);
+                            uraUseCase.enviar(mensagemFinal);
                         }
                     }
                 });

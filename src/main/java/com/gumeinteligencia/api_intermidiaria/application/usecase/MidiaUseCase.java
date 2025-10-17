@@ -16,23 +16,31 @@ public class MidiaUseCase {
 
     private final MidiaGateway gateway;
 
-    public void extrairMidias(Mensagem mensagem) {
+    public Mensagem extrairMidias(Mensagem mensagem) {
 
         MidiaCliente midiaCliente = MidiaCliente.builder().telefoneCliente(mensagem.getTelefone()).urlMidias(new ArrayList<>()).build();
 
         if(!mensagem.getUrlAudio().isBlank()) {
             midiaCliente.adicionarUrl(mensagem.getUrlAudio());
             gateway.salvar(midiaCliente);
+            mensagem.setMensagem("Midia do usuário");
+            return mensagem;
         }
 
         if (!mensagem.getUrlImagem().isBlank()) {
             midiaCliente.adicionarUrl(mensagem.getUrlImagem());
             gateway.salvar(midiaCliente);
+            mensagem.setMensagem("Midia do usuário");
+            return mensagem;
         }
 
         if(!mensagem.getUrlVideo().isBlank()) {
             midiaCliente.adicionarUrl(mensagem.getUrlVideo());
             gateway.salvar(midiaCliente);
+            mensagem.setMensagem("Midia do usuário");
+            return mensagem;
         }
+
+        return mensagem;
     }
 }
