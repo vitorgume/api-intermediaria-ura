@@ -41,6 +41,10 @@
 			<artifactId>spring-cloud-aws-sqs</artifactId>
 			<version>3.4.0</version>
 		</dependency>
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>s3</artifactId>
+		</dependency>
 
 
 		<!-- Spring  -->
@@ -125,6 +129,13 @@
 				<groupId>io.awspring.cloud</groupId>
 				<artifactId>spring-cloud-aws-dependencies</artifactId>
 				<version>3.2.0</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>software.amazon.awssdk</groupId>
+				<artifactId>bom</artifactId>
+				<version>2.25.28</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

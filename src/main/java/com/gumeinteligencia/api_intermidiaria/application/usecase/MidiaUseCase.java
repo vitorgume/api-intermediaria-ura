@@ -6,7 +6,12 @@ import com.gumeinteligencia.api_intermidiaria.domain.MidiaCliente;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 @Service
@@ -21,10 +26,7 @@ public class MidiaUseCase {
         MidiaCliente midiaCliente = MidiaCliente.builder().telefoneCliente(mensagem.getTelefone()).urlMidias(new ArrayList<>()).build();
 
         if(!mensagem.getUrlAudio().isBlank()) {
-            midiaCliente.adicionarUrl(mensagem.getUrlAudio());
-            gateway.salvar(midiaCliente);
-            mensagem.setMensagem("Midia do usuário");
-            return mensagem;
+            this.transcreverAudio(mensagem.getUrlAudio(), mensagem.getTelefone());
         }
 
         if (!mensagem.getUrlImagem().isBlank()) {
@@ -43,4 +45,10 @@ public class MidiaUseCase {
 
         return mensagem;
     }
+
+    private void transcreverAudio(String urlAudio, String telefone) {
+        byte[] bytes = gateway.baixarAudio(urlAudio);
+        gateway.enviarAudioTranscricao(bytes, telefone, "audio-chat");
+    }
+    
 }
