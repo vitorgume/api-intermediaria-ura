@@ -1,17 +1,13 @@
 package com.gumeinteligencia.api_intermidiaria.application.usecase;
 
 import com.gumeinteligencia.api_intermidiaria.application.gateways.MidiaGateway;
+import com.gumeinteligencia.api_intermidiaria.application.gateways.TranscricaoGateway;
 import com.gumeinteligencia.api_intermidiaria.domain.Mensagem;
 import com.gumeinteligencia.api_intermidiaria.domain.MidiaCliente;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 
 @Service
@@ -20,6 +16,8 @@ import java.util.ArrayList;
 public class MidiaUseCase {
 
     private final MidiaGateway gateway;
+    private final TranscricaoGateway transcricaoGateway;
+
 
     public Mensagem extrairMidias(Mensagem mensagem) {
 
@@ -47,8 +45,9 @@ public class MidiaUseCase {
     }
 
     private void transcreverAudio(String urlAudio, String telefone) {
-        byte[] bytes = gateway.baixarAudio(urlAudio);
-        gateway.enviarAudioTranscricao(bytes, telefone, "audio-chat");
+        byte[] bytes = transcricaoGateway.baixarAudio(urlAudio);
+        transcricaoGateway.enviarAudioTranscricao(bytes, telefone, "audio-chat");
     }
-    
+
+
 }

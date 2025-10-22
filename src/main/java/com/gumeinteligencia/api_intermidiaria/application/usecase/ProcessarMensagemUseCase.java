@@ -24,12 +24,12 @@ public class ProcessarMensagemUseCase {
     public void processarNovaMensagem(Mensagem mensagem) {
         log.info("Processando nova mensagem. Mensagem: {}", mensagem);
 
-        if (validadorMensagem.deveIngorar(mensagem)) {
+        Mensagem mensagemFinal = midiaUseCase.extrairMidias(mensagem);
+
+        if (validadorMensagem.deveIngorar(mensagemFinal)) {
             log.info("Mensagem ignorada. Motivo: Validação");
             return;
         }
-
-        Mensagem mensagemFinal = midiaUseCase.extrairMidias(mensagem);
 
         contextoUseCase.consultarPorTelefoneAtivo(mensagem.getTelefone())
                 .ifPresentOrElse(contexto -> {

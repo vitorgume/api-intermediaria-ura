@@ -9,10 +9,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class Mensagem {
-    private String telefone;
-    private String mensagem;
-    private String urlImagem;
-    private String urlAudio;
-    private String urlVideo;
+public class Transcricao {
+    private String bucket;
+    private String key;
+    private String body;
 }
