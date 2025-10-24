@@ -1,14 +1,12 @@
 package com.gumeinteligencia.api_intermidiaria.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @AllArgsConstructor
 @Getter
 @Setter
 @Builder
+@ToString
 public class Mensagem {
     private String telefone;
     private String mensagem;

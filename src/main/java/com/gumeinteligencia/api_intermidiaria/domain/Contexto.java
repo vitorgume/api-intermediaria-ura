@@ -1,9 +1,6 @@
 package com.gumeinteligencia.api_intermidiaria.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -12,6 +9,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
+@ToString
 public class Contexto {
     private UUID id;
     private String telefone;
