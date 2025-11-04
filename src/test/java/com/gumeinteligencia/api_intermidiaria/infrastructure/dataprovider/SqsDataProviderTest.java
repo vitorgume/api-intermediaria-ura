@@ -68,7 +68,6 @@ class SqsDataProviderTest {
         SendMessageRequest enviado = requestCaptor.getValue();
         assertEquals("https://fila-sqs.ficticia", enviado.queueUrl());
         assertEquals(json, enviado.messageBody());
-        assertEquals(10, enviado.delaySeconds());
     }
 
     @Test

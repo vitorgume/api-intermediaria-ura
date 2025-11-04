@@ -36,6 +36,9 @@ class ProcessarMensagemUseCaseTest {
     @Mock
     private ClienteUseCase clienteUseCase;
 
+    @Mock
+    private MidiaUseCase midiaUseCase;
+
     @InjectMocks
     private ProcessarMensagemUseCase processarMensagemUseCase;
 
@@ -69,6 +72,8 @@ class ProcessarMensagemUseCaseTest {
         when(contextoUseCase.consultarPorTelefoneAtivo(mensagem.getTelefone()))
                 .thenReturn(Optional.of(contexto));
 
+        when(midiaUseCase.extrairMidias(Mockito.any())).thenReturn(mensagem);
+
         processarMensagemUseCase.processarNovaMensagem(mensagem);
 
         verify(contextoUseCase).processarContextoExistente(contexto, mensagem);
@@ -89,6 +94,8 @@ class ProcessarMensagemUseCaseTest {
                 .thenReturn(Optional.empty());
         when(clienteUseCase.consultarPorTelefone(mensagem.getTelefone()))
                 .thenReturn(Optional.of(clienteChatbot));
+
+        when(midiaUseCase.extrairMidias(Mockito.any())).thenReturn(mensagem);
 
         processarMensagemUseCase.processarNovaMensagem(mensagem);
 
@@ -112,6 +119,8 @@ class ProcessarMensagemUseCaseTest {
         when(clienteUseCase.consultarPorTelefone(mensagem.getTelefone()))
                 .thenReturn(Optional.of(clienteUra));
 
+        when(midiaUseCase.extrairMidias(Mockito.any())).thenReturn(mensagem);
+
         processarMensagemUseCase.processarNovaMensagem(mensagem);
 
         verify(uraUseCase).enviar(mensagem);
@@ -130,6 +139,8 @@ class ProcessarMensagemUseCaseTest {
         when(roteadorDeTrafegoUseCase.deveUsarChatbot(mensagem.getTelefone()))
                 .thenReturn(true);
 
+        when(midiaUseCase.extrairMidias(Mockito.any())).thenReturn(mensagem);
+
         processarMensagemUseCase.processarNovaMensagem(mensagem);
 
         verify(contextoUseCase).iniciarNovoContexto(mensagem);
@@ -145,6 +156,8 @@ class ProcessarMensagemUseCaseTest {
                 .thenReturn(Optional.empty());
         when(roteadorDeTrafegoUseCase.deveUsarChatbot(mensagem.getTelefone()))
                 .thenReturn(false);
+
+        when(midiaUseCase.extrairMidias(Mockito.any())).thenReturn(mensagem);
 
         processarMensagemUseCase.processarNovaMensagem(mensagem);
 

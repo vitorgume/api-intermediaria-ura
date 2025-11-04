@@ -28,7 +28,7 @@ class ValidadorTelefoneValidoTest {
         Mensagem msg = mock(Mensagem.class);
         when(msg.getTelefone()).thenReturn(telefone);
 
-        assertTrue(validador.deveIgnorar(msg), "Deveria aceitar: " + telefone);
+        assertFalse(validador.deveIgnorar(msg), "Deveria aceitar: " + telefone);
     }
 
     @ParameterizedTest
@@ -47,7 +47,7 @@ class ValidadorTelefoneValidoTest {
         Mensagem msg = mock(Mensagem.class);
         when(msg.getTelefone()).thenReturn(telefone);
 
-        assertFalse(validador.deveIgnorar(msg), "Não deveria aceitar: " + telefone);
+        assertTrue(validador.deveIgnorar(msg), "Não deveria aceitar: " + telefone);
     }
 
     @Test
@@ -56,7 +56,7 @@ class ValidadorTelefoneValidoTest {
         Mensagem msg = mock(Mensagem.class);
         when(msg.getTelefone()).thenReturn("");
 
-        assertFalse(validador.deveIgnorar(msg));
+        assertTrue(validador.deveIgnorar(msg));
     }
 
     @Test

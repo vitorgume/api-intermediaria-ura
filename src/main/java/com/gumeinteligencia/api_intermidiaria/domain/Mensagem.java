@@ -13,5 +13,4 @@ public class Mensagem {
     private String urlImagem;
     private String urlAudio;
     private String urlVideo;
-    private Fonte fonte;
 }
