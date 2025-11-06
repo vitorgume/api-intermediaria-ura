@@ -25,7 +25,7 @@ public class ClienteDataProvider implements ClienteGateway {
         Optional<ClienteEntity> clienteEntity;
 
         try {
-            clienteEntity = cLienteRepository.findByTelefone(telefone);
+            clienteEntity = cLienteRepository.findByTelefoneAndInativoFalse(telefone);
         } catch (Exception ex) {
             log.error(MENSAGEM_ERRO_CONSULTAR_POR_TELEFONE, ex);
             throw new DataProviderException(MENSAGEM_ERRO_CONSULTAR_POR_TELEFONE, ex.getCause());
