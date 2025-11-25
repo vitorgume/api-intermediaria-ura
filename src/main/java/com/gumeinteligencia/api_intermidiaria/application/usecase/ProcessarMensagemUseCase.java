@@ -31,7 +31,7 @@ public class ProcessarMensagemUseCase {
 
         Mensagem mensagemFinal = midiaUseCase.extrairMidias(mensagem);
 
-        contextoUseCase.consultarPorTelefoneAtivo(mensagem.getTelefone())
+        contextoUseCase.consultarPorTelefone(mensagem.getTelefone())
                 .ifPresentOrElse(contexto -> {
                     contextoUseCase.processarContextoExistente(contexto, mensagemFinal);
                 }, () -> {

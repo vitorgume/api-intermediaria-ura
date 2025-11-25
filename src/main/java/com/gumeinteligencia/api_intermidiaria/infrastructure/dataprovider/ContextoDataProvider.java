@@ -29,19 +29,14 @@ public class ContextoDataProvider implements ContextoGateway {
     private final String MENSAGEM_ERRO_SALVAR_CONTEXTO = "Erro ao salvar contexto.";
 
     @Override
-    public Optional<Contexto> consultarPorTelefoneAtivo(String telefone) {
+    public Optional<Contexto> consultarPorTelefone(String telefone) {
         Map<String, AttributeValue> expressionValues = new HashMap<>();
         expressionValues.put(":telefone", AttributeValue.builder().s(telefone).build());
-        expressionValues.put(":status", AttributeValue.builder().s("ATIVO").build());
-
-        Map<String, String> expressionNames = new HashMap<>();
-        expressionNames.put("#status", "status");
 
         QueryRequest queryRequest = QueryRequest.builder()
                 .tableName("contexto_entity")
                 .indexName("TelefoneStatusIndex")
-                .keyConditionExpression("telefone = :telefone AND #status = :status")
-                .expressionAttributeNames(expressionNames)
+                .keyConditionExpression("telefone = :telefone")
                 .expressionAttributeValues(expressionValues)
                 .limit(1)
                 .build();

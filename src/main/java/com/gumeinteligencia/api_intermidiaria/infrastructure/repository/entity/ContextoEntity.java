@@ -1,6 +1,5 @@
 package com.gumeinteligencia.api_intermidiaria.infrastructure.repository.entity;
 
-import com.gumeinteligencia.api_intermidiaria.domain.StatusContexto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -21,7 +20,6 @@ public class ContextoEntity {
     private UUID id;
     private String telefone;
     private List<String> mensagens;
-    private StatusContexto status;
 
     @DynamoDbPartitionKey
     public UUID getId() {
@@ -34,9 +32,5 @@ public class ContextoEntity {
 
     public List<String> getMensagens() {
         return mensagens;
-    }
-
-    public StatusContexto getStatus() {
-        return status;
     }
 }

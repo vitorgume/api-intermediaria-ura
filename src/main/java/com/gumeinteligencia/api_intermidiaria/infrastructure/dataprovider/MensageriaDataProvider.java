@@ -2,7 +2,7 @@ package com.gumeinteligencia.api_intermidiaria.infrastructure.dataprovider;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gumeinteligencia.api_intermidiaria.application.gateways.MensageriaGateway;
-import com.gumeinteligencia.api_intermidiaria.domain.Contexto;
+import com.gumeinteligencia.api_intermidiaria.domain.AvisoContexto;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.exceptions.DataProviderException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,14 +38,14 @@ public class MensageriaDataProvider implements MensageriaGateway {
     }
 
     @Override
-    public SendMessageResponse enviarParaFila(Contexto contexto) {
+    public SendMessageResponse enviarParaFila(AvisoContexto aviso) {
         try {
-            String json = objectMapper.writeValueAsString(contexto);
+            String json = objectMapper.writeValueAsString(aviso);
 
             SendMessageRequest request = SendMessageRequest.builder()
                     .queueUrl(queueUrl)
                     .messageBody(json)
-                    .messageGroupId("message-group-" + contexto.getId().toString())
+                    .messageGroupId("message-group-" + aviso.getId().toString())
                     .build();
 
             return sqsClient.sendMessage(request);

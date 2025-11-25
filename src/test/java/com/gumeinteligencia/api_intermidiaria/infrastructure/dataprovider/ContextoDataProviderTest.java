@@ -58,7 +58,7 @@ class ContextoDataProviderTest {
     // -------------------- seus testes originais --------------------
 
     @Test
-    void deveConsultarPorTelefoneAtivoComSucesso() {
+    void deveConsultarPorTelefoneComSucesso() {
         Map<String, AttributeValue> itemMap = new HashMap<>();
         itemMap.put("id", AttributeValue.fromS(contextoEntity.getId().toString()));
         itemMap.put("telefone", AttributeValue.fromS(contextoEntity.getTelefone()));
@@ -71,7 +71,7 @@ class ContextoDataProviderTest {
 
         when(dynamoDbClient.query(any(QueryRequest.class))).thenReturn(mockResponse);
 
-        Optional<Contexto> resultado = dataProvider.consultarPorTelefoneAtivo("45999999999");
+        Optional<Contexto> resultado = dataProvider.consultarPorTelefone("45999999999");
 
         assertTrue(resultado.isPresent());
         assertEquals("45999999999", resultado.get().getTelefone());
@@ -87,7 +87,7 @@ class ContextoDataProviderTest {
 
         when(dynamoDbClient.query(any(QueryRequest.class))).thenReturn(responseVazio);
 
-        Optional<Contexto> resultado = dataProvider.consultarPorTelefoneAtivo("000000000");
+        Optional<Contexto> resultado = dataProvider.consultarPorTelefone("000000000");
 
         assertTrue(resultado.isEmpty());
     }
@@ -97,7 +97,7 @@ class ContextoDataProviderTest {
         when(dynamoDbClient.query(any(QueryRequest.class))).thenThrow(new RuntimeException("Erro simulado"));
 
         DataProviderException ex = assertThrows(DataProviderException.class, () ->
-                dataProvider.consultarPorTelefoneAtivo("erro"));
+                dataProvider.consultarPorTelefone("erro"));
 
         assertEquals("Erro ao consultar contexto pelo seu telefone e ativo.", ex.getMessage());
     }
@@ -141,7 +141,7 @@ class ContextoDataProviderTest {
         when(dynamoDbClient.query(captor.capture())).thenReturn(mockResponse);
 
         // act
-        dataProvider.consultarPorTelefoneAtivo("45999999999");
+        dataProvider.consultarPorTelefone("45999999999");
 
         // assert: valida campos de QueryRequest
         QueryRequest sent = captor.getValue();
@@ -168,7 +168,7 @@ class ContextoDataProviderTest {
 
         when(dynamoDbClient.query(any(QueryRequest.class))).thenReturn(mockResponse);
 
-        Optional<Contexto> out = dataProvider.consultarPorTelefoneAtivo("111");
+        Optional<Contexto> out = dataProvider.consultarPorTelefone("111");
         assertTrue(out.isPresent());
         assertNotNull(out.get().getMensagens());
         assertTrue(out.get().getMensagens().isEmpty(), "Quando não há 'mensagens', deve voltar lista vazia");
@@ -196,7 +196,7 @@ class ContextoDataProviderTest {
 
         when(dynamoDbClient.query(any(QueryRequest.class))).thenReturn(mockResponse);
 
-        Optional<Contexto> out = dataProvider.consultarPorTelefoneAtivo("222");
+        Optional<Contexto> out = dataProvider.consultarPorTelefone("222");
         assertTrue(out.isPresent());
         assertEquals(List.of("A", "B", "C"), out.get().getMensagens());
     }
@@ -225,7 +225,7 @@ class ContextoDataProviderTest {
 
         when(dynamoDbClient.query(any(QueryRequest.class))).thenReturn(mockResponse);
 
-        Optional<Contexto> out = dataProvider.consultarPorTelefoneAtivo("333");
+        Optional<Contexto> out = dataProvider.consultarPorTelefone("333");
         assertTrue(out.isPresent());
         assertEquals(List.of("X", "Y"), out.get().getMensagens(),
                 "Quando ss está vazio e l tem valores, deve usar l");
@@ -251,7 +251,7 @@ class ContextoDataProviderTest {
 
         when(dynamoDbClient.query(any(QueryRequest.class))).thenReturn(mockResponse);
 
-        Optional<Contexto> out = dataProvider.consultarPorTelefoneAtivo("444");
+        Optional<Contexto> out = dataProvider.consultarPorTelefone("444");
         assertTrue(out.isPresent());
         assertNotNull(out.get().getMensagens());
         assertTrue(out.get().getMensagens().isEmpty(), "Com ss e l vazios, resultado deve ser vazio");
@@ -271,7 +271,7 @@ class ContextoDataProviderTest {
 
         when(dynamoDbClient.query(any(QueryRequest.class))).thenReturn(mockResponse);
 
-        assertThrows(IllegalArgumentException.class, () -> dataProvider.consultarPorTelefoneAtivo("555"),
+        assertThrows(IllegalArgumentException.class, () -> dataProvider.consultarPorTelefone("555"),
                 "Status inválido deve propagar IllegalArgumentException (fora do try/catch)");
     }
 }

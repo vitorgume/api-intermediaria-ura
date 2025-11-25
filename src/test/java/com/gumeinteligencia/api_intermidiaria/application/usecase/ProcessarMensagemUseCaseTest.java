@@ -58,7 +58,7 @@ class ProcessarMensagemUseCaseTest {
 
         processarMensagemUseCase.processarNovaMensagem(mensagem);
 
-        verify(contextoUseCase, never()).consultarPorTelefoneAtivo(any());
+        verify(contextoUseCase, never()).consultarPorTelefone(any());
         verify(contextoUseCase, never()).processarContextoExistente(any(), any());
         verify(contextoUseCase, never()).iniciarNovoContexto(any());
         verifyNoInteractions(uraUseCase, roteadorDeTrafegoUseCase, clienteUseCase);
@@ -69,7 +69,7 @@ class ProcessarMensagemUseCaseTest {
         Contexto contexto = Contexto.builder().telefone("44999999999").build();
 
         when(validadorMensagem.deveIngorar(mensagem)).thenReturn(false);
-        when(contextoUseCase.consultarPorTelefoneAtivo(mensagem.getTelefone()))
+        when(contextoUseCase.consultarPorTelefone(mensagem.getTelefone()))
                 .thenReturn(Optional.of(contexto));
 
         when(midiaUseCase.extrairMidias(Mockito.any())).thenReturn(mensagem);
@@ -90,7 +90,7 @@ class ProcessarMensagemUseCaseTest {
                 .build();
 
         when(validadorMensagem.deveIngorar(mensagem)).thenReturn(false);
-        when(contextoUseCase.consultarPorTelefoneAtivo(mensagem.getTelefone()))
+        when(contextoUseCase.consultarPorTelefone(mensagem.getTelefone()))
                 .thenReturn(Optional.empty());
         when(clienteUseCase.consultarPorTelefone(mensagem.getTelefone()))
                 .thenReturn(Optional.of(clienteChatbot));
@@ -114,7 +114,7 @@ class ProcessarMensagemUseCaseTest {
                 .build();
 
         when(validadorMensagem.deveIngorar(mensagem)).thenReturn(false);
-        when(contextoUseCase.consultarPorTelefoneAtivo(mensagem.getTelefone()))
+        when(contextoUseCase.consultarPorTelefone(mensagem.getTelefone()))
                 .thenReturn(Optional.empty());
         when(clienteUseCase.consultarPorTelefone(mensagem.getTelefone()))
                 .thenReturn(Optional.of(clienteUra));
@@ -132,7 +132,7 @@ class ProcessarMensagemUseCaseTest {
     @Test
     void deveSeguirRoteador_quandoSemContextoEClienteInexistente_usarChatbotTrue() {
         when(validadorMensagem.deveIngorar(mensagem)).thenReturn(false);
-        when(contextoUseCase.consultarPorTelefoneAtivo(mensagem.getTelefone()))
+        when(contextoUseCase.consultarPorTelefone(mensagem.getTelefone()))
                 .thenReturn(Optional.empty());
         when(clienteUseCase.consultarPorTelefone(mensagem.getTelefone()))
                 .thenReturn(Optional.empty());
@@ -150,7 +150,7 @@ class ProcessarMensagemUseCaseTest {
     @Test
     void deveSeguirRoteador_quandoSemContextoEClienteInexistente_usarChatbotFalse() {
         when(validadorMensagem.deveIngorar(mensagem)).thenReturn(false);
-        when(contextoUseCase.consultarPorTelefoneAtivo(mensagem.getTelefone()))
+        when(contextoUseCase.consultarPorTelefone(mensagem.getTelefone()))
                 .thenReturn(Optional.empty());
         when(clienteUseCase.consultarPorTelefone(mensagem.getTelefone()))
                 .thenReturn(Optional.empty());

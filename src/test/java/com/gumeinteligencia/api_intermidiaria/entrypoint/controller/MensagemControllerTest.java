@@ -17,7 +17,6 @@ import com.gumeinteligencia.api_intermidiaria.infrastructure.repository.entity.C
 import io.awspring.cloud.dynamodb.DynamoDbTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -123,7 +122,7 @@ class MensagemControllerTest {
     @Test
     void deveProcessarMensagemDeUmContextoExistenteComSucesso() throws Exception {
         when(outroContatoRepository.listar()).thenReturn(List.of());
-        when(contextoUseCase.consultarPorTelefoneAtivo(any())).thenReturn(Optional.of(ContextoMapper.paraDomain(contextoEntity)));
+        when(contextoUseCase.consultarPorTelefone(any())).thenReturn(Optional.of(ContextoMapper.paraDomain(contextoEntity)));
         when(contextoRepository.salvar(any())).thenReturn(contextoEntity);
         when(mensageriaGateway.enviarParaFila(any())).thenReturn(null);
 

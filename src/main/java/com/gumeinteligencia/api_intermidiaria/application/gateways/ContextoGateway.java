@@ -5,7 +5,7 @@ import com.gumeinteligencia.api_intermidiaria.domain.Contexto;
 import java.util.Optional;
 
 public interface ContextoGateway {
-    Optional<Contexto> consultarPorTelefoneAtivo(String telefone);
+    Optional<Contexto> consultarPorTelefone(String telefone);
 
     Contexto salvar(Contexto contexto);
 }

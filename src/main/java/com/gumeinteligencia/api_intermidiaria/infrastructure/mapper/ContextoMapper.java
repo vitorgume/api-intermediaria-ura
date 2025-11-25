@@ -10,7 +10,6 @@ public class ContextoMapper {
                 .id(entity.getId())
                 .mensagens(entity.getMensagens())
                 .telefone(entity.getTelefone())
-                .status(entity.getStatus())
                 .build();
     }
 
@@ -19,7 +18,6 @@ public class ContextoMapper {
                 .id(domain.getId())
                 .mensagens(domain.getMensagens())
                 .telefone(domain.getTelefone())
-                .status(domain.getStatus())
                 .build();
     }
 }

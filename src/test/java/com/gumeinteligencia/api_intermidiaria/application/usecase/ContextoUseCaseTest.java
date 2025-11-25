@@ -50,9 +50,9 @@ class ContextoUseCaseTest {
     @Test
     void deveConsultarContextoPorTelefone() {
         Contexto contexto = Contexto.builder().telefone(telefone).status(StatusContexto.ATIVO).build();
-        when(gateway.consultarPorTelefoneAtivo(telefone)).thenReturn(Optional.of(contexto));
+        when(gateway.consultarPorTelefone(telefone)).thenReturn(Optional.of(contexto));
 
-        Optional<Contexto> resultado = contextoUseCase.consultarPorTelefoneAtivo(telefone);
+        Optional<Contexto> resultado = contextoUseCase.consultarPorTelefone(telefone);
 
         assertTrue(resultado.isPresent());
         assertEquals(telefone, resultado.get().getTelefone());
