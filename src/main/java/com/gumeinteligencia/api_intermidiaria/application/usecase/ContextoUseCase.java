@@ -1,6 +1,5 @@
 package com.gumeinteligencia.api_intermidiaria.application.usecase;
 
-import com.gumeinteligencia.api_intermidiaria.application.AvisoContextoUseCase;
 import com.gumeinteligencia.api_intermidiaria.application.gateways.ContextoGateway;
 import com.gumeinteligencia.api_intermidiaria.application.gateways.MensageriaGateway;
 import com.gumeinteligencia.api_intermidiaria.domain.Contexto;

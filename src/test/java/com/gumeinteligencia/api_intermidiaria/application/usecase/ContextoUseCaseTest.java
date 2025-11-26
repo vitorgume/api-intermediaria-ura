@@ -4,7 +4,7 @@ import com.gumeinteligencia.api_intermidiaria.application.gateways.ContextoGatew
 import com.gumeinteligencia.api_intermidiaria.application.gateways.MensageriaGateway;
 import com.gumeinteligencia.api_intermidiaria.domain.Contexto;
 import com.gumeinteligencia.api_intermidiaria.domain.Mensagem;
-import com.gumeinteligencia.api_intermidiaria.domain.StatusContexto;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -90,7 +90,6 @@ class ContextoUseCaseTest {
 
         Contexto contextoCriado = captor.getValue();
         assertEquals(telefone, contextoCriado.getTelefone());
-        assertEquals(StatusContexto.ATIVO, contextoCriado.getStatus());
         assertEquals(List.of(mensagem.getMensagem()), contextoCriado.getMensagens());
     }
 

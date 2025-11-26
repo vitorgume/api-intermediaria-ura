@@ -1,4 +1,4 @@
-package com.gumeinteligencia.api_intermidiaria.application;
+package com.gumeinteligencia.api_intermidiaria.application.usecase;
 
 import com.gumeinteligencia.api_intermidiaria.domain.AvisoContexto;
 import org.springframework.stereotype.Service;

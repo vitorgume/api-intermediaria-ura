@@ -2,7 +2,6 @@ package com.gumeinteligencia.api_intermidiaria.infrastructure.dataprovider;
 
 import com.gumeinteligencia.api_intermidiaria.application.gateways.ContextoGateway;
 import com.gumeinteligencia.api_intermidiaria.domain.Contexto;
-import com.gumeinteligencia.api_intermidiaria.domain.StatusContexto;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.exceptions.DataProviderException;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.mapper.ContextoMapper;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.repository.ContextoRepository;
@@ -35,7 +34,7 @@ public class ContextoDataProvider implements ContextoGateway {
 
         QueryRequest queryRequest = QueryRequest.builder()
                 .tableName("contexto_entity")
-                .indexName("TelefoneStatusIndex")
+                .indexName("TelefoneIndex")
                 .keyConditionExpression("telefone = :telefone")
                 .expressionAttributeValues(expressionValues)
                 .limit(1)
@@ -92,7 +91,6 @@ public class ContextoDataProvider implements ContextoGateway {
                 .id(UUID.fromString(item.get("id").s()))
                 .telefone(item.get("telefone").s())
                 .mensagens(mensagens)
-                .status(StatusContexto.valueOf(item.get("status").s()))
                 .build();
     }
 }
