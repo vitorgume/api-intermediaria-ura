@@ -2,7 +2,7 @@ package com.gumeinteligencia.api_intermidiaria.infrastructure.dataprovider;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gumeinteligencia.api_intermidiaria.domain.Contexto;
+import com.gumeinteligencia.api_intermidiaria.domain.AvisoContexto;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.exceptions.DataProviderException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,10 +17,10 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 import software.amazon.awssdk.services.sqs.model.SendMessageResponse;
 
-import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -40,14 +40,13 @@ class SqsDataProviderTest {
     @Captor
     private ArgumentCaptor<SendMessageRequest> requestCaptor;
 
-    private Contexto contexto;
+    private AvisoContexto aviso;
 
     @BeforeEach
     void setUp() {
-        contexto = Contexto.builder()
+        aviso = AvisoContexto.builder()
                 .id(UUID.randomUUID())
-                .telefone("45999999999")
-                .mensagens(List.of("Olá"))
+                .idContexto(UUID.randomUUID())
                 .build();
 
         ReflectionTestUtils.setField(sqsDataProvider, "queueUrl", "https://fila-sqs.ficticia");
@@ -56,30 +55,30 @@ class SqsDataProviderTest {
 
     @Test
     void deveEnviarMensagemParaFilaComSucesso() throws Exception {
-        String json = "{\"telefone\":\"45999999999\",\"mensagens\":[\"Olá\"]}";
-        when(objectMapper.writeValueAsString(contexto)).thenReturn(json);
+        String json = "{\"idContexto\":\"" + aviso.getIdContexto() + "\"}";
+        when(objectMapper.writeValueAsString(aviso)).thenReturn(json);
         when(sqsClient.sendMessage(any(SendMessageRequest.class)))
                 .thenReturn(SendMessageResponse.builder().messageId("abc123").build());
 
-        sqsDataProvider.enviarParaFila(contexto);
+        sqsDataProvider.enviarParaFila(aviso);
 
         verify(sqsClient).sendMessage(requestCaptor.capture());
 
         SendMessageRequest enviado = requestCaptor.getValue();
         assertEquals("https://fila-sqs.ficticia", enviado.queueUrl());
         assertEquals(json, enviado.messageBody());
+        assertEquals("message-group-" + aviso.getId(), enviado.messageGroupId());
     }
 
     @Test
     void deveLancarDataProviderExceptionAoFalharNaConversaoJson() throws Exception {
-        when(objectMapper.writeValueAsString(contexto))
+        when(objectMapper.writeValueAsString(aviso))
                 .thenThrow(new JsonProcessingException("Erro") {});
 
         DataProviderException ex = assertThrows(DataProviderException.class, () -> {
-            sqsDataProvider.enviarParaFila(contexto);
+            sqsDataProvider.enviarParaFila(aviso);
         });
 
         assertEquals("Erro", ex.getCause().getMessage());
     }
-
 }

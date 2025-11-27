@@ -54,4 +54,9 @@ class OutroContatoMapperTest {
         Assertions.assertEquals(outroContatoDomain.getDescricao(), resultado.getDescricao());
         Assertions.assertEquals(outroContatoDomain.getSetor(), resultado.getSetor());
     }
+
+    @Test
+    void devePermitirInstanciacao() {
+        Assertions.assertNotNull(new OutroContatoMapper());
+    }
 }

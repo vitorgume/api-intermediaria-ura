@@ -1,20 +1,13 @@
 package com.gumeinteligencia.api_intermidiaria.infrastructure.mapper;
 
 import com.gumeinteligencia.api_intermidiaria.domain.Contexto;
-import com.gumeinteligencia.api_intermidiaria.domain.StatusContexto;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.repository.entity.ContextoEntity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
-import software.amazon.awssdk.enhanced.dynamodb.Key;
-import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 
 import java.util.List;
 import java.util.UUID;
-
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
 
 class ContextoMapperTest {
 
@@ -26,15 +19,13 @@ class ContextoMapperTest {
         contextoDomain = Contexto.builder()
                 .id(UUID.randomUUID())
                 .telefone("000000000000")
-                .status(StatusContexto.ATIVO)
-                .mensagens(List.of("Olá"))
+                .mensagens(List.of("Ola"))
                 .build();
 
         contextoEntity = ContextoEntity.builder()
                 .id(UUID.randomUUID())
                 .telefone("000000000000")
-                .status(StatusContexto.ATIVO)
-                .mensagens(List.of("Olá"))
+                .mensagens(List.of("Ola"))
                 .build();
     }
 
@@ -44,7 +35,6 @@ class ContextoMapperTest {
 
         Assertions.assertEquals(contextoEntity.getId(), resultado.getId());
         Assertions.assertEquals(contextoEntity.getTelefone(), resultado.getTelefone());
-        Assertions.assertEquals(contextoEntity.getStatus(), resultado.getStatus());
         Assertions.assertEquals(contextoEntity.getMensagens(), resultado.getMensagens());
     }
 
@@ -54,7 +44,11 @@ class ContextoMapperTest {
 
         Assertions.assertEquals(contextoDomain.getId(), resultado.getId());
         Assertions.assertEquals(contextoDomain.getTelefone(), resultado.getTelefone());
-        Assertions.assertEquals(contextoDomain.getStatus(), resultado.getStatus());
         Assertions.assertEquals(contextoDomain.getMensagens(), resultado.getMensagens());
+    }
+
+    @Test
+    void devePermitirInstanciacao() {
+        Assertions.assertNotNull(new ContextoMapper());
     }
 }

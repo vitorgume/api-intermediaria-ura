@@ -42,4 +42,9 @@ class ClienteMapperTest {
         Assertions.assertFalse(resultado.isInativo());
         Assertions.assertEquals(resultado.getCanal(), clienteEntity.getCanal());
     }
+
+    @Test
+    void devePermitirInstanciacao() {
+        Assertions.assertNotNull(new ClienteMapper());
+    }
 }
