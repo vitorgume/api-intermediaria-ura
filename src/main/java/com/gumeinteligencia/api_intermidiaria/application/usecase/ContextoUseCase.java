@@ -4,6 +4,7 @@ import com.gumeinteligencia.api_intermidiaria.application.gateways.ContextoGatew
 import com.gumeinteligencia.api_intermidiaria.application.gateways.MensageriaGateway;
 import com.gumeinteligencia.api_intermidiaria.domain.Contexto;
 import com.gumeinteligencia.api_intermidiaria.domain.Mensagem;
+import com.gumeinteligencia.api_intermidiaria.domain.MensagemContexto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,13 @@ public class ContextoUseCase {
     public void processarContextoExistente(Contexto contexto, Mensagem mensagem) {
         log.info("Processando contexto existente. Contexto: {}, Mensagem: {}", contexto, mensagem);
 
-        contexto.getMensagens().add(mensagem.getMensagem());
+        contexto.getMensagens().add(
+                MensagemContexto.builder()
+                        .mensagem(mensagem.getMensagem())
+                        .imagemUrl(mensagem.getUrlImagem())
+                        .audioUrl(mensagem.getUrlAudio())
+                        .build()
+        );
 
         gateway.salvar(contexto);
 
@@ -41,7 +48,13 @@ public class ContextoUseCase {
 
         Contexto novoContexto = Contexto.builder()
                 .id(UUID.randomUUID())
-                .mensagens(new ArrayList<>(List.of(mensagem.getMensagem())))
+                .mensagens(new ArrayList<>(List.of(
+                        MensagemContexto.builder()
+                                .mensagem(mensagem.getMensagem())
+                                .imagemUrl(mensagem.getUrlImagem())
+                                .audioUrl(mensagem.getUrlAudio())
+                                .build()
+                )))
                 .telefone(mensagem.getTelefone())
                 .build();
 
