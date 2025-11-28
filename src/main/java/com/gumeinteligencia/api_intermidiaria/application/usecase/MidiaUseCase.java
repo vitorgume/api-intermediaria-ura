@@ -12,7 +12,12 @@ public class MidiaUseCase {
 
     public Mensagem extrairMidias(Mensagem mensagem) {
 
-        if(!mensagem.getUrlAudio().isBlank() || !mensagem.getUrlImagem().isBlank() || !mensagem.getUrlVideo().isBlank()) {
+        if(!mensagem.getUrlImagem().isBlank()) {
+            mensagem.setMensagem(mensagem.getUrlImagem());
+            return mensagem;
+        }
+
+        if(!mensagem.getUrlAudio().isBlank() || !mensagem.getUrlVideo().isBlank()) {
             mensagem.setMensagem("Midia do usuário");
             return mensagem;
         }
