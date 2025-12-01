@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import com.gumeinteligencia.api_intermidiaria.domain.MensagemContexto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -68,7 +69,9 @@ class ContextoUseCaseTest {
         Contexto contexto = Contexto.builder()
                 .id(UUID.randomUUID())
                 .telefone(telefone)
-                .mensagens(new ArrayList<>(List.of("Mensagem antiga")))
+                .mensagens(new ArrayList<>(List.of(
+                        MensagemContexto.builder().mensagem("Mensagem antiga").build()
+                )))
                 .build();
 
         when(gateway.salvar(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -77,7 +80,10 @@ class ContextoUseCaseTest {
 
         ArgumentCaptor<Contexto> captor = ArgumentCaptor.forClass(Contexto.class);
         verify(gateway).salvar(captor.capture());
-        assertEquals(List.of("Mensagem antiga", mensagem.getMensagem()), captor.getValue().getMensagens());
+        List<MensagemContexto> mensagens = captor.getValue().getMensagens();
+        assertEquals(2, mensagens.size());
+        assertEquals("Mensagem antiga", mensagens.get(0).getMensagem());
+        assertEquals(mensagem.getMensagem(), mensagens.get(1).getMensagem());
         verify(mensageriaGateway, never()).enviarParaFila(any());
     }
 
@@ -101,7 +107,9 @@ class ContextoUseCaseTest {
 
         Contexto contextoCriado = captorContexto.getValue();
         assertEquals(telefone, contextoCriado.getTelefone());
-        assertEquals(List.of(mensagem.getMensagem()), contextoCriado.getMensagens());
+        List<MensagemContexto> mensagens = contextoCriado.getMensagens();
+        assertEquals(1, mensagens.size());
+        assertEquals(mensagem.getMensagem(), mensagens.get(0).getMensagem());
         assertEquals(contextoCriado.getId(), captorAviso.getValue().getIdContexto());
     }
 

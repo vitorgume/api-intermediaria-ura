@@ -2,6 +2,7 @@ package com.gumeinteligencia.api_intermidiaria.infrastructure.dataprovider;
 
 import com.gumeinteligencia.api_intermidiaria.application.gateways.ContextoGateway;
 import com.gumeinteligencia.api_intermidiaria.domain.Contexto;
+import com.gumeinteligencia.api_intermidiaria.domain.MensagemContexto;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.exceptions.DataProviderException;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.mapper.ContextoMapper;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.repository.ContextoRepository;
@@ -90,7 +91,7 @@ public class ContextoDataProvider implements ContextoGateway {
         return ContextoEntity.builder()
                 .id(UUID.fromString(item.get("id").s()))
                 .telefone(item.get("telefone").s())
-                .mensagens(mensagens)
+                .mensagens(mensagens.stream().map(mensagem -> MensagemContexto.builder().mensagem(mensagem).build()).toList())
                 .build();
     }
 }

@@ -3,6 +3,7 @@ package com.gumeinteligencia.api_intermidiaria.domain;
 import lombok.*;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @Builder

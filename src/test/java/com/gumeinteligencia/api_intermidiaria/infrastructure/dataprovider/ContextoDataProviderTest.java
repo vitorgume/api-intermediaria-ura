@@ -1,6 +1,7 @@
 package com.gumeinteligencia.api_intermidiaria.infrastructure.dataprovider;
 
 import com.gumeinteligencia.api_intermidiaria.domain.Contexto;
+import com.gumeinteligencia.api_intermidiaria.domain.MensagemContexto;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.exceptions.DataProviderException;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.repository.ContextoRepository;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.repository.entity.ContextoEntity;
@@ -44,13 +45,18 @@ class ContextoDataProviderTest {
 
     private ContextoEntity contextoEntity;
     private Contexto contexto;
+    private MensagemContexto mensagemContexto;
+    private List<String> mensagensComoString;
 
     @BeforeEach
     void setUp() {
+        mensagemContexto = MensagemContexto.builder().mensagem("Oi").build();
+        mensagensComoString = List.of(mensagemContexto.getMensagem());
+
         contextoEntity = ContextoEntity.builder()
                 .id(UUID.randomUUID())
                 .telefone("45999999999")
-                .mensagens(List.of("Oi"))
+                .mensagens(List.of(mensagemContexto))
                 .build();
 
         contexto = Contexto.builder()
@@ -65,7 +71,7 @@ class ContextoDataProviderTest {
         Map<String, AttributeValue> itemMap = new HashMap<>();
         itemMap.put("id", AttributeValue.fromS(contextoEntity.getId().toString()));
         itemMap.put("telefone", AttributeValue.fromS(contextoEntity.getTelefone()));
-        itemMap.put("mensagens", AttributeValue.fromSs(contextoEntity.getMensagens()));
+        itemMap.put("mensagens", AttributeValue.fromSs(mensagensComoString));
 
         QueryResponse mockResponse = QueryResponse.builder()
                 .items(List.of(itemMap))
@@ -77,7 +83,7 @@ class ContextoDataProviderTest {
 
         assertTrue(resultado.isPresent());
         assertEquals("45999999999", resultado.get().getTelefone());
-        assertEquals(List.of("Oi"), resultado.get().getMensagens());
+        assertEquals(mensagensComoString, resultado.get().getMensagens().stream().map(MensagemContexto::getMensagem).toList());
     }
 
     @Test
@@ -188,7 +194,7 @@ class ContextoDataProviderTest {
 
         Optional<Contexto> out = dataProvider.consultarPorTelefone("222");
         assertTrue(out.isPresent());
-        assertEquals(List.of("A", "B", "C"), out.get().getMensagens());
+        assertEquals(List.of("A", "B", "C"), out.get().getMensagens().stream().map(MensagemContexto::getMensagem).toList());
     }
 
     @Test
@@ -215,7 +221,7 @@ class ContextoDataProviderTest {
 
         Optional<Contexto> out = dataProvider.consultarPorTelefone("333");
         assertTrue(out.isPresent());
-        assertEquals(List.of("X", "Y"), out.get().getMensagens(),
+        assertEquals(List.of("X", "Y"), out.get().getMensagens().stream().map(MensagemContexto::getMensagem).toList(),
                 "Quando ss esta vazio e l tem valores, deve usar l");
     }
 

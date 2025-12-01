@@ -1,6 +1,7 @@
 package com.gumeinteligencia.api_intermidiaria.infrastructure.mapper;
 
 import com.gumeinteligencia.api_intermidiaria.domain.Contexto;
+import com.gumeinteligencia.api_intermidiaria.domain.MensagemContexto;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.repository.entity.ContextoEntity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,16 +17,17 @@ class ContextoMapperTest {
 
     @BeforeEach
     void setUp() {
+        MensagemContexto mensagem = MensagemContexto.builder().mensagem("Ola").build();
         contextoDomain = Contexto.builder()
                 .id(UUID.randomUUID())
                 .telefone("000000000000")
-                .mensagens(List.of("Ola"))
+                .mensagens(List.of(mensagem))
                 .build();
 
         contextoEntity = ContextoEntity.builder()
                 .id(UUID.randomUUID())
                 .telefone("000000000000")
-                .mensagens(List.of("Ola"))
+                .mensagens(List.of(mensagem))
                 .build();
     }
 
@@ -35,7 +37,8 @@ class ContextoMapperTest {
 
         Assertions.assertEquals(contextoEntity.getId(), resultado.getId());
         Assertions.assertEquals(contextoEntity.getTelefone(), resultado.getTelefone());
-        Assertions.assertEquals(contextoEntity.getMensagens(), resultado.getMensagens());
+        Assertions.assertEquals(contextoEntity.getMensagens().size(), resultado.getMensagens().size());
+        Assertions.assertEquals(contextoEntity.getMensagens().get(0).getMensagem(), resultado.getMensagens().get(0).getMensagem());
     }
 
     @Test
@@ -44,7 +47,8 @@ class ContextoMapperTest {
 
         Assertions.assertEquals(contextoDomain.getId(), resultado.getId());
         Assertions.assertEquals(contextoDomain.getTelefone(), resultado.getTelefone());
-        Assertions.assertEquals(contextoDomain.getMensagens(), resultado.getMensagens());
+        Assertions.assertEquals(contextoDomain.getMensagens().size(), resultado.getMensagens().size());
+        Assertions.assertEquals(contextoDomain.getMensagens().get(0).getMensagem(), resultado.getMensagens().get(0).getMensagem());
     }
 
     @Test

@@ -42,7 +42,7 @@ class ContextoRepositoryTest {
         contexto = ContextoEntity.builder()
                 .id(id)
                 .telefone(telefone)
-                .mensagens(List.of("Ola"))
+                .mensagens(List.of(com.gumeinteligencia.api_intermidiaria.domain.MensagemContexto.builder().mensagem("Ola").build()))
                 .build();
     }
 
