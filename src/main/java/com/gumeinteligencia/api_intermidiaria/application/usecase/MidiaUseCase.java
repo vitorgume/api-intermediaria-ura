@@ -12,8 +12,12 @@ public class MidiaUseCase {
 
     public Mensagem extrairMidias(Mensagem mensagem) {
 
-        if(!mensagem.getUrlAudio().isBlank() || !mensagem.getUrlVideo().isBlank()) {
-            mensagem.setMensagem("Midia do usuário");
+        String urlVideo = mensagem.getUrlVideo();
+
+        boolean possuiVideo = urlVideo != null && !urlVideo.isBlank();
+
+        if (possuiVideo) {
+            mensagem.setMensagem("Midia do usuario");
             return mensagem;
         }
 

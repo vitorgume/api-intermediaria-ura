@@ -30,7 +30,14 @@ public class ContextoUseCase {
     public void processarContextoExistente(Contexto contexto, Mensagem mensagem) {
         log.info("Processando contexto existente. Contexto: {}, Mensagem: {}", contexto, mensagem);
 
-        contexto.getMensagens().add(
+        List<MensagemContexto> mensagens = contexto.getMensagens();
+        if (mensagens == null) {
+            mensagens = new ArrayList<>();
+        } else {
+            mensagens = new ArrayList<>(mensagens);
+        }
+
+        mensagens.add(
                 MensagemContexto.builder()
                         .mensagem(mensagem.getMensagem())
                         .imagemUrl(mensagem.getUrlImagem())
@@ -38,6 +45,7 @@ public class ContextoUseCase {
                         .build()
         );
 
+        contexto.setMensagens(mensagens);
         gateway.salvar(contexto);
 
         log.info("Contexto processado com sucesso.");

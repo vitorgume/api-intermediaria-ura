@@ -22,25 +22,12 @@ public class MensagemContextoListConverter implements AttributeConverter<List<Me
         if (input == null || input.isEmpty()) {
             return AttributeValue.builder().nul(true).build();
         }
-        try {
-            String json = MAPPER.writeValueAsString(input);
-            return AttributeValue.builder().s(json).build();
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Erro convertendo lista de MensagemContexto para JSON", e);
-        }
+        return AttributeValue.builder().s(toJson(input)).build();
     }
 
     @Override
     public List<MensagemContexto> transformTo(AttributeValue input) {
-        if (input == null || (input.nul() != null && input.nul())) {
-            return Collections.emptyList();
-        }
-        try {
-            String json = input.s();
-            return MAPPER.readValue(json, new TypeReference<List<MensagemContexto>>() {});
-        } catch (IOException e) {
-            throw new RuntimeException("Erro convertendo JSON para lista de MensagemContexto", e);
-        }
+        return fromAttributeValue(input);
     }
 
     @Override
@@ -52,5 +39,46 @@ public class MensagemContextoListConverter implements AttributeConverter<List<Me
     public AttributeValueType attributeValueType() {
         // vamos armazenar como String (S) no DynamoDB
         return AttributeValueType.S;
+    }
+
+    public static List<MensagemContexto> fromAttributeValue(AttributeValue input) {
+        if (input == null || (input.nul() != null && input.nul())) {
+            return Collections.emptyList();
+        }
+
+        if (input.s() != null && !input.s().isBlank()) {
+            return fromJson(input.s());
+        }
+
+        if (input.ss() != null && !input.ss().isEmpty()) {
+            return input.ss().stream()
+                    .map(value -> MensagemContexto.builder().mensagem(value).build())
+                    .toList();
+        }
+
+        if (input.l() != null && !input.l().isEmpty()) {
+            return input.l().stream()
+                    .map(AttributeValue::s)
+                    .map(value -> MensagemContexto.builder().mensagem(value).build())
+                    .toList();
+        }
+
+        return Collections.emptyList();
+    }
+
+    private static String toJson(List<MensagemContexto> input) {
+        try {
+            return MAPPER.writeValueAsString(input);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Erro convertendo lista de MensagemContexto para JSON", e);
+        }
+    }
+
+    private static List<MensagemContexto> fromJson(String json) {
+        try {
+            return MAPPER.readValue(json, new TypeReference<List<MensagemContexto>>() {});
+        } catch (IOException e) {
+            throw new RuntimeException("Erro convertendo JSON para lista de MensagemContexto", e);
+        }
     }
 }

@@ -31,9 +31,9 @@ class MidiaUseCaseTest {
         Mensagem mensagem = Mensagem.builder()
                 .telefone("111")
                 .mensagem("texto")
-                .urlAudio("audio-url")
+                .urlAudio("")
                 .urlImagem("")
-                .urlVideo("")
+                .urlVideo("video-url")
                 .build();
 
         Mensagem resultado = midiaUseCase.extrairMidias(mensagem);

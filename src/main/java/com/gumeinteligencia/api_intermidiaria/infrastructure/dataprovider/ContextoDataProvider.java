@@ -2,9 +2,9 @@ package com.gumeinteligencia.api_intermidiaria.infrastructure.dataprovider;
 
 import com.gumeinteligencia.api_intermidiaria.application.gateways.ContextoGateway;
 import com.gumeinteligencia.api_intermidiaria.domain.Contexto;
-import com.gumeinteligencia.api_intermidiaria.domain.MensagemContexto;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.exceptions.DataProviderException;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.mapper.ContextoMapper;
+import com.gumeinteligencia.api_intermidiaria.infrastructure.mapper.MensagemContextoListConverter;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.repository.ContextoRepository;
 import com.gumeinteligencia.api_intermidiaria.infrastructure.repository.entity.ContextoEntity;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,6 @@ import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
 import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -74,24 +73,14 @@ public class ContextoDataProvider implements ContextoGateway {
     }
 
     private ContextoEntity converterParaContextoEntity(Map<String, AttributeValue> item) {
-        List<String> mensagens = List.of();
-
-        if (item.containsKey("mensagens")) {
-            AttributeValue attr = item.get("mensagens");
-
-            if (attr.ss() != null && !attr.ss().isEmpty()) {
-                mensagens = attr.ss();
-            } else if (attr.l() != null && !attr.l().isEmpty()) {
-                mensagens = attr.l().stream()
-                        .map(AttributeValue::s)
-                        .collect(Collectors.toList());
-            }
-        }
+        var mensagens = Optional.ofNullable(item.get("mensagens"))
+                .map(MensagemContextoListConverter::fromAttributeValue)
+                .orElseGet(Collections::emptyList);
 
         return ContextoEntity.builder()
                 .id(UUID.fromString(item.get("id").s()))
                 .telefone(item.get("telefone").s())
-                .mensagens(mensagens.stream().map(mensagem -> MensagemContexto.builder().mensagem(mensagem).build()).toList())
+                .mensagens(mensagens)
                 .build();
     }
 }
