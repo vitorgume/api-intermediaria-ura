@@ -1,4 +1,4 @@
-# Cotalizer – API Intermediária
+# API Intermediária
 
 ---
 
