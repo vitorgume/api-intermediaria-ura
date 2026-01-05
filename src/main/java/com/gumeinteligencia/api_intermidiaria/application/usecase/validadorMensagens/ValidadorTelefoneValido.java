@@ -14,6 +14,10 @@ public class ValidadorTelefoneValido implements MensagemValidator {
     }
 
     private static final Pattern PADRAO_FLEX = Pattern.compile(
-            "^(?:\\+?55\\s?)?\\(?\\d{2}\\)?\\s?(?:9\\d{4}|\\d{4})-?\\d{4}$"
+            "^(?:"
+                    + "(?:\\+?55\\s?)?\\(?\\d{2}\\)?\\s?(?:9\\d{4}|\\d{4})-?\\d{4}"
+                    + "|"
+                    + "\\+1\\s?\\(\\d{3}\\)\\s?\\d{3}-\\d{4}"
+                    + ")$"
     );
 }

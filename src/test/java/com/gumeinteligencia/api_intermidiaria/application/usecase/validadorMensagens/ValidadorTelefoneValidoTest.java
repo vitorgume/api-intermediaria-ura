@@ -22,7 +22,8 @@ class ValidadorTelefoneValidoTest {
             "+55 11 91234-5678",
             "11912345678",
             "(11)91234-5678",
-            "(44)3030-1234"
+            "(44)3030-1234",
+            "+1 (781) 000-0000"
     })
     void deveIgnorar_quandoTelefoneValido(String telefone) {
         Mensagem msg = mock(Mensagem.class);
