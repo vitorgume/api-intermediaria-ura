@@ -10,14 +10,21 @@ public class ValidadorTelefoneValido implements MensagemValidator {
 
     @Override
     public boolean deveIgnorar(Mensagem mensagem) {
-        return !PADRAO_FLEX.matcher(mensagem.getTelefone()).matches();
+        String telefone = mensagem.getTelefone();
+        if (telefone.startsWith("+")) {
+            if (!PADRAO_FORMATACAO.matcher(telefone).matches()) {
+                return true;
+            }
+        } else if (!PADRAO_APENAS_DIGITOS.matcher(telefone).matches()) {
+            return true;
+        }
+
+        String digitos = telefone.replaceAll("\\D", "");
+        return digitos.length() < TAMANHO_MIN_DIGITOS || digitos.length() > TAMANHO_MAX_DIGITOS;
     }
 
-    private static final Pattern PADRAO_FLEX = Pattern.compile(
-            "^(?:"
-                    + "(?:\\+?55\\s?)?\\(?\\d{2}\\)?\\s?(?:9\\d{4}|\\d{4})-?\\d{4}"
-                    + "|"
-                    + "\\+1\\s?\\(\\d{3}\\)\\s?\\d{3}-\\d{4}"
-                    + ")$"
-    );
+    private static final int TAMANHO_MIN_DIGITOS = 8;
+    private static final int TAMANHO_MAX_DIGITOS = 15;
+    private static final Pattern PADRAO_FORMATACAO = Pattern.compile("^\\+[0-9()\\s-]+$");
+    private static final Pattern PADRAO_APENAS_DIGITOS = Pattern.compile("^\\d+$");
 }

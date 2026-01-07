@@ -6,7 +6,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -14,16 +16,16 @@ class ValidadorTelefoneValidoTest {
     private final ValidadorTelefoneValido validador = new ValidadorTelefoneValido();
 
     @ParameterizedTest
-    @DisplayName("deveIgnorar = true para telefones BR válidos no padrão flex")
+    @DisplayName("deveIgnorar = true para telefones validos com codigo do pais")
     @ValueSource(strings = {
-            "(11) 99876-5432",
-            "(44) 3030-1234",
             "+55 (11) 91234-5678",
             "+55 11 91234-5678",
-            "11912345678",
-            "(11)91234-5678",
-            "(44)3030-1234",
-            "+1 (781) 000-0000"
+            "+1 (781) 000-0000",
+            "+44 20 7946-0958",
+            "+81 3 1234-5678",
+            "+49 (30) 1234-5678",
+            "+358 40 123 4567",
+            "+5511912345678"
     })
     void deveIgnorar_quandoTelefoneValido(String telefone) {
         Mensagem msg = mock(Mensagem.class);
@@ -33,22 +35,23 @@ class ValidadorTelefoneValidoTest {
     }
 
     @ParameterizedTest
-    @DisplayName("deveIgnorar = false para formatos inválidos")
+    @DisplayName("deveIgnorar = false para formatos invalidos")
     @ValueSource(strings = {
-            "99876-5432",        // sem DDD
-            "11-99876-5432",     // DDD com hífen no lugar errado
-            "(011) 99876-5432",  // DDD com 3 dígitos
-            "(11) 991234-567",   // dígitos a menos
-            "(11) 991234-56789", // dígitos a mais
-            "abc",               // não numérico
-            "+5511-91234-5678",  // hífen após +55 (regex não permite aqui)
-            "0055 (11) 91234-5678" // 00 55 (regex não cobre)
+            "99876-5432",                 // sem codigo do pais
+            "1 (000) 000-0000",           // sem +
+            "(011) 99876-5432",           // sem codigo do pais
+            "+1 (000) 000-0000#",         // caractere invalido
+            "+1 123-456",                 // digitos a menos
+            "+123 1234567890123456",      // digitos a mais
+            "+abc",                       // nao numerico
+            "+55 (11) 9a234-5678",        // letras misturadas
+            "++55 11 91234-5678"          // dois sinais de +
     })
     void naoDeveIgnorar_quandoTelefoneInvalido(String telefone) {
         Mensagem msg = mock(Mensagem.class);
         when(msg.getTelefone()).thenReturn(telefone);
 
-        assertTrue(validador.deveIgnorar(msg), "Não deveria aceitar: " + telefone);
+        assertTrue(validador.deveIgnorar(msg), "Nao deveria aceitar: " + telefone);
     }
 
     @Test
@@ -61,12 +64,11 @@ class ValidadorTelefoneValidoTest {
     }
 
     @Test
-    @DisplayName("Lança NullPointerException quando telefone é null")
+    @DisplayName("Lanca NullPointerException quando telefone e null")
     void lancaExcecao_quandoNull() {
         Mensagem msg = mock(Mensagem.class);
         when(msg.getTelefone()).thenReturn(null);
 
         assertThrows(NullPointerException.class, () -> validador.deveIgnorar(msg));
     }
-
 }
